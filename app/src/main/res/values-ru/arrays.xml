@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="priorities">
+        <item>Низкий приоритет</item>
+        <item>Обычный приоритет</item>
+        <item>Высокий приоритет</item>
+    </string-array>
+    <string-array name="intervals">
+        <item>Никогда</item>
+        <item>Ежедневно</item>
+<!--        <item>Еженедельно</item>-->
+<!--        <item>Ежемесячно</item>-->
+    </string-array>
+</resources>

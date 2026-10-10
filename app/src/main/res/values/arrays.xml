@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="priorities">
+        <item>Low Priority</item>
+        <item>Normal Priority</item>
+        <item>High Priority</item>
+    </string-array>
+    <string-array name="intervals">
+        <item>Off</item>
+        <item>Daily</item>
+<!--        <item>Weekly</item>-->
+<!--        <item>Monthly</item>-->
+    </string-array>
+
+</resources>

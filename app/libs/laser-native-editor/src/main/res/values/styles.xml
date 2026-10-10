@@ -1,0 +1,53 @@
+<resources>
+
+<!--    &lt;!&ndash; Base application theme. &ndash;&gt;-->
+<!--    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
+<!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
+<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+<!--        <item name="colorAccent">@color/colorPrimaryDark</item>-->
+<!--    </style>-->
+
+<!--    <style name="AppTheme.NoActionBar">-->
+<!--        <item name="windowActionBar">false</item>-->
+<!--        <item name="windowNoTitle">true</item>-->
+<!--    </style>-->
+
+<!--    <style name="AppTheme.LoginActionBar">-->
+<!--        <item name="windowActionBar">false</item>-->
+<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+<!--        <item name="windowNoTitle">true</item>-->
+<!--    </style>-->
+
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents" />
+
+    <style name="customLayoutStyle">
+        <item name="android:background">#f2f2f2</item>
+    </style>
+
+
+    <style name="EditScreenTextInputLayoutStyle" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlHighlight">@color/white</item>
+        <item name="colorAccent">@color/white</item>
+        <item name="android:textColorHint">@color/white</item>
+    </style>
+
+    <style name="WysiwygEditText" parent="ThemeOverlay.MaterialComponents.TextInputEditText">
+<!--        <item name="android:lineSpacingMultiplier">1.3</item>-->
+<!--        <item name="android:textColor">@color/white</item>-->
+<!--        <item name="android:colorBackground">@android:color/black</item>-->
+<!--        <item name="android:colorControlActivated">@android:color/black</item>-->
+<!--        <item name="android:colorControlNormal">@android:color/black</item>-->
+<!--        <item name="android:colorControlHighlight">@android:color/black</item>-->
+<!--        <item name="android:colorAccent">@android:color/black</item>-->
+
+    </style>
+    <style name="Widget.App.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="hintTextColor">?attr/colorOnSurface</item>
+    </style>
+</resources>

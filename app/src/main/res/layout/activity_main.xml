@@ -1,0 +1,116 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context="com.huawei.wordnote.ru.huawei.wordnote.ui.scenes.main.MainActivity">
+
+        <!-- TODO BACKGROUND LOGO (TOP or on ViewPager)
+        android:background="@drawable/splash"
+        -->
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            style="@style/Widget.MaterialComponents.AppBarLayout.Surface"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-12dp"
+            app:elevation="16dp">
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_toolbarContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="@dimen/medium_margin"
+                app:cardElevation="@dimen/medium_margin"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_scrollFlags="scroll|enterAlways">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:orientation="vertical"
+                    android:paddingTop="12dp">
+
+                    <com.google.android.material.appbar.MaterialToolbar
+                        android:id="@+id/toolbar"
+                        style="@style/WordNote.Toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize">
+
+                        <androidx.appcompat.widget.SearchView
+                            android:id="@+id/search_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="right"
+                            android:maxWidth="10000dp"
+                            app:queryHint="@string/search_hint"
+                            app:searchIcon="@drawable/ic_baseline_search_24" />
+                    </com.google.android.material.appbar.MaterialToolbar>
+
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/tab_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="@android:color/transparent"
+
+                        app:layout_scrollFlags="scroll|enterAlways"
+                        app:tabIndicatorColor="?colorPrimary"
+                        app:tabSelectedTextColor="?colorPrimary"
+                        app:tabTextColor="?colorOnSurface" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </com.google.android.material.appbar.AppBarLayout>
+
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            style="@style/Widget.MaterialComponents.FloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_margin="@dimen/fab_margin"
+            app:layout_anchor="@id/transparent_view"
+            app:layout_anchorGravity="top|end"
+            app:srcCompat="@drawable/ic_add_circle_white_24dp" />
+
+        <!--        BEST SOLUTION FOR AD-->
+        <View
+            android:id="@+id/transparent_view"
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            android:layout_gravity="end"
+            android:background="@android:color/transparent"
+            app:layout_anchor="@id/banner"
+            app:layout_anchorGravity="top|end"
+            app:useCompatPadding="false" />
+
+        <com.huawei.hms.ads.banner.BannerView xmlns:hwads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            app:layout_anchor="@id/pager"
+            app:layout_anchorGravity="bottom"
+            hwads:adId="d5ju9vvb05"
+            hwads:bannerSize="BANNER_SIZE_320_50" />
+        <!--        TEST ID-->
+        <!--        hwads:adId="testw6vs28auh3"-->
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

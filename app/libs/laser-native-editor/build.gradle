@@ -1,0 +1,66 @@
+apply plugin: 'com.android.library'
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'laser-native-editor'
+    publishedGroupId = 'com.github.irshulx'
+    libraryName = 'laser-native-editor'
+    artifact = 'laser-native-editor'
+    libraryDescription = 'Android WYSIWYG is a text editor written in Android using the native components in the content tree. The library can be used as both Editor and Renderer. The HTML parser helps it easier to integrate with specific web WYSIWY'
+    siteUrl = 'http://irshulx.github.io/laser-native-editor'
+    gitUrl = 'https://github.com/irshuLx/laser-native-editor.git'
+    libraryVersion = '3.0.4'
+    developerId = 'irshuLx'
+    developerName = 'Irshu'
+    developerEmail = 'irshu@outlook.com'
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+
+android {
+    compileSdkVersion 32
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 32
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+tasks.withType(Javadoc).all {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+}
+
+
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.13'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'org.jsoup:jsoup:1.13.1'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'org.jetbrains:annotations:19.0.0'
+
+    // ядро библиотеки
+    implementation 'com.github.stephanenicolas.toothpick:toothpick-runtime:3.1.0'
+    // плюшки для Android
+    implementation 'com.github.stephanenicolas.toothpick:smoothie-androidx:3.1.0'
+    // процессор аннотаций для генерации кода
+    annotationProcessor 'com.github.stephanenicolas.toothpick:toothpick-compiler:3.1.0'
+}

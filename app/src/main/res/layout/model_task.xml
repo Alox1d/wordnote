@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view_task"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/medium_margin"
+    app:cardCornerRadius="@dimen/mediumCornerRadius"
+    app:cardElevation="@dimen/smallCornerRadius">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <RelativeLayout
+            android:id="@+id/ll_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="?attr/actionBarSize">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/cvTaskPriority"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:src="?colorPrimary"
+
+                />
+
+            <TextView
+                android:id="@+id/tvTaskTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_toEndOf="@id/cvTaskPriority"
+                android:layout_toRightOf="@id/cvTaskPriority"
+                android:textAppearance="?textAppearanceHeadline6"
+                android:textSize="16sp"
+                tools:text="Hello\nHello" />
+
+            <TextView
+                android:id="@+id/tvTaskDate"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_alignBaseline="@id/tvTaskTitle"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_toStartOf="@id/iv_hidden"
+                android:alpha="0.6"
+                android:gravity="right"
+                android:textAppearance="?textAppearanceSubtitle1"
+                android:textSize="14sp"
+                tools:text="DATE" />
+            <!--            android:textColor="@color/secondary_text_default_material_light"-->
+            <ImageView
+                android:id="@+id/iv_hidden"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center_vertical"
+                android:layout_toStartOf="@id/iv_taskArrow"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Hidden"
+                android:gravity="right"
+                android:paddingTop="@dimen/medium_margin"
+                android:paddingBottom="@dimen/medium_margin"
+                app:srcCompat="@drawable/ic_baseline_eye_24"
+                app:tint="?colorPrimary"></ImageView>
+
+            <ImageButton
+                android:id="@+id/iv_taskArrow"
+                android:layout_width="24dp"
+                android:layout_height="44dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Arrow"
+                app:srcCompat="@drawable/ic_expand_more_black_24dp"
+                app:tint="?colorPrimary"></ImageButton>
+
+
+        </RelativeLayout>
+
+
+        <FrameLayout
+            android:id="@+id/cv_taskDescriptionContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_header"
+            android:layout_marginStart="@dimen/medium_margin"
+            android:layout_marginEnd="@dimen/medium_margin"
+            android:paddingStart="@dimen/medium_margin"
+            android:paddingEnd="@dimen/medium_margin"
+            android:paddingBottom="@dimen/medium_margin"
+
+            >
+
+
+            <com.github.irshulx.Editor
+                android:id="@+id/editor_fragDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                app:placeholder="@string/task_description"
+                app:render_type="Renderer">
+
+            </com.github.irshulx.Editor>
+
+
+        </FrameLayout>
+
+
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

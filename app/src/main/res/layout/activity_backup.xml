@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.huawei.wordnote.ui.scenes.backup.BackupActivity">
+
+
+    <TextView
+        android:id="@+id/tv_hms_sign_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ll_backup"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/medium_margin"
+        android:gravity="center"
+        android:text="@string/hms_drive_kit"
+        android:textAppearance="@style/TextAppearance.MyTheme.Headline5" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ll_backup"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btn_hms_backup"
+            android:text="@string/Backup"
+            android:layout_marginRight="@dimen/medium_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+
+            />
+        <Button
+            android:id="@+id/btn_hms_restore"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/Restore"
+            android:layout_toEndOf="@id/btn_hms_backup"
+
+            android:gravity="center"
+
+            />
+    </LinearLayout>
+    <Spinner
+        android:id="@+id/spinner_backup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/medium_margin"
+        android:layout_marginStart="@dimen/medium_margin"
+        android:layout_marginEnd="@dimen/medium_margin"
+        android:layout_below="@id/ll_backup"
+        android:layout_centerInParent="true"
+
+        />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/progress_backup"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="@dimen/medium_margin"
+        android:layout_marginStart="@dimen/medium_margin"
+        android:layout_marginEnd="@dimen/medium_margin"
+        android:layout_below="@id/spinner_backup"/>
+
+
+</RelativeLayout>

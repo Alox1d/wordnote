@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">WordNote</string>
+    <string name="action_settings">Настройки</string>
+    <string name="current_task">Текущие</string>
+    <string name="dialog_cancel">Отмена</string>
+    <string name="dialog_editing_title">Редактирование задачи</string>
+    <string name="dialog_error_empty_title">Пожалуйста, введите заголовок.</string>
+    <string name="dialog_removing_message">Вы уверены, что хотите удалить эту задачу?</string>
+    <string name="dialog_add_task_title">Добавление задачи</string>
+    <string name="do_not_show_splash">Не показывать начальный экран</string>
+    <string name="done_task">Выполненные</string>
+
+    <string name="removed">Удалено</string>
+    <string name="separator_future">В будущем</string>
+    <string name="separator_overdue">В прошлом</string>
+    <string name="separator_today">Сегодня</string>
+    <string name="separator_tomorrow">Завтра</string>
+    <string name="task_date">Дата</string>
+    <string name="task_time">Время</string>
+    <string name="task_description">Ваша задача…</string>
+    <string name="dialog_adding_canceled">Добавление задачи отменено</string>
+    <string name="task_title">Заголовок</string>
+    <string name="search_hint">Поиск</string>
+    <string name="image_is_saved">"Изображение сохранено: "</string>
+    <string name="close">Закрыть</string>
+    <string name="about_text">
+        Приложение под названием WordNote предназначено для планирования задач.
+        WordNote позволяет извлекать дату/время, устанавливать по этим данным уведомление и кастомизировать задачу так,
+        как требуется пользователю, благодаря возможностям редактора WYSIWYG:
+        вставить картинку, выделить текст полужирным/курсивом, изменить размер текста и цвет,
+        добавить кликабельную ссылку на внешний ресурс, сделать/убрать абзацный отступ,
+        выделить текст как цитату, добавить список с нумерацией или маркерами,
+        вставить разделитель и очистить всё форматирование, а также устанавливать уведомления по заданной дате/времени и
+        менять приоритет задач.\n
+            \n\nКонтакты:\n
+Разработчик - Alox1d (Александр Баранов)
+        \n
+        \n
+        Использованы библиотеки:\n https://github.com/irshuLx/Android-WYSIWYG-Editor \n
+        https://github.com/QuadFlask/colorpicker \n
+        https://github.com/hdodenhof/CircleImageView
+        DateParser
+
+
+    </string>
+    <string name="about_app_title">О приложении</string>
+    <string name="about_version_title">Версия:	&#8194;</string>
+    <string name="popUpColor_choose">Выбрать цвет</string>
+    <string name="popUpColor_cancel">ОТМЕНА</string>
+    <string name="description_optional">Описание (необязательно)</string>
+    <string name="uploading">Загрузка…</string>
+    <string name="sync_vk">Синхронизация с ВКонтакте</string>
+    <string name="dialog_vk_search_title">Выберите диалог</string>
+    <string name="how_to_use_title">Как использовать</string>
+    <string name="how_to_use_text">
+        <b>•</b> Для добавления задачи после стартового экрана нажмите кнопку "+" в правом нижнем углу.
+        Далее после открытия диалога заполните требуемые приложением поля, и, если требуется, введите описание
+        (его можно оформлять с использованием кнопок форматирования в нижней части экрана),
+        выберите дату/время напоминания о задаче и её приоритет. Для подтверждения нажмите кнопку "ОК".
+        \n
+        <b>•</b> При необходимости отредактировать задачу - нажмите на неё.
+        \n
+        <b>•</b> Для переключения между списками выполненных и текущих задач выполните свайп влево или вправо соответственно, либо нажмите на нужную категорию на экране.
+        \n
+        <b>•</b> Чтобы пометить задачу как выполненную, нажмите на кружок с левой стороны от заголовка задачи.
+        Аналогичное действия требуется для перемещения задачи из списка выполненных в текущие.
+        \n
+        <b>•</b> Для поиска по задачам воспользуйтесь соответствующем полем с лупой в верхней части экрана.
+        \n
+        <b>•</b> Для отключения/включения стартового экрана выберите соответствующую опцию в меню.
+                        \n
+        <b>•</b> Для использования бекапа, нажмите кнопку синхронизации в верхнем правом углу главного экрана приложения.
+
+        \n
+        <b>•</b> Для голосового ввода, нажмите кнопку микрофона в конце поля для ввода заголовка задачи на экране добавления/редактирования.
+        \n
+        <b>•</b> Для распознавания текста изображения, нажмите кнопку камеры в нижней части тулбара на экране добавления/редактирования задачи.
+    </string>
+    <string name="ai_bar_header">Завтра…</string>
+    <string name="popUpColor_picked">Выбран</string>
+    <string name="notification_channel_name">Уведомления</string>
+    <string name="enable_dark_theme">Принудительно включить тёмную тему</string>
+    <string name="Backup">Резервировать</string>
+    <string name="hms_drive_kit">Резервирование в HUAWEI Drive</string>
+    <string name="Restore">Восстановить</string>
+    <string name="voice_recognition">Голосовой ввод задачи</string>
+    <string name="video_frame">Стрим</string>
+    <string name="simplified_chinese">Упрощенный китайский</string>
+    <string name="english_choose">Английский</string>
+    <string name="russian_choose">Русский</string>
+    <string name="japanese_choose">Японский</string>
+    <string name="korean_choose">Корейский</string>
+    <string name="latin_choose">Латынь</string>
+    <string name="loading_data">Загрузка…</string>
+    <string name="cloud_text">Облачное распознавание текста</string>
+    <string name="take_photo">Сделать фото</string>
+    <string name="text_detection_s">Распознавание текста</string>
+
+    <string name="select_from_album">Выбрать изображения из альбома</string>
+    <string name="first_backup">Пожалуйста, выполните первый бекап или восстановление вручную для логина</string>
+    <string name="login_success">Вход выполнен</string>
+    <string name="restore_success">Восстановление выполнено успешно</string>
+    <string name="backup_success">Резервирование выполнено успешно</string>
+    <string name="cloud_empty">Облако пусто: нечего восстанавливать</string>
+    <string name="file_doesnt_exist">Поданый файл не существует</string>
+    <string name="parse_date">Извлечь дату и время</string>
+    <string name="offline_text_recognition">Оффлайн распознавание \nДля распознавания русского с использованием облака нажмите на иконку справа</string>
+    <string name="error_code">Код ошибки: </string>
+    <string name="failed_to_get_data">Не удалось получить данные</string>
+    <string name="backup_is_running">Идёт резервирование…</string>
+    <string name="hidden_notes">Скрытые задачи</string>
+    <string name="cant_auth">Не удалось аутентифицировать. Код ошибки = </string>
+    <string name="auth_failed">Ошибка аутентификации </string>
+    <string name="error_msg">Сообщение: </string>
+    <string name="auth_result">Результат аутентификации</string>
+    <string name="show_hidden_notes">Показать скрытые задачи</string>
+    <string name="hide_note">Скрытая</string>
+    <string name="youtube">Youtube</string>
+
+
+</resources>

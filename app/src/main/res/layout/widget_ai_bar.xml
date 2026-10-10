@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:background="@drawable/widget_background_shape_white"
+    style="@style/Theme.WordNote">
+
+        <TextView android:id="@+id/et_addTaskByAI"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:text="@string/ai_bar_header"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:alpha="0.4"
+
+            style="@style/WidgetEditText"
+            >
+        </TextView>
+
+</FrameLayout>
+

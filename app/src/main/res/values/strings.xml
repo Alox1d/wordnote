@@ -1,0 +1,129 @@
+<resources>
+    <string name="app_name">WordNote</string>
+
+    <string name="action_settings">Settings</string>
+
+
+    <string name="do_not_show_splash">Don\'t show splash</string>
+
+    <string name="current_task">Current</string>
+    <string name="done_task">Done</string>
+
+    <string name="dialog_editing_title">Editing task</string>
+    <string name="dialog_add_task_title">Adding task</string>
+    <string name="dialog_ok" translatable="false">OK</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_error_empty_title">Please, enter the title.</string>
+
+    <string name="dialog_removing_message">Are you sure want to delete this task?</string>
+    <string name="removed">Removed</string>
+
+    <string name="task_date">Date</string>
+    <string name="task_description">Your task description…</string>
+    <string name="task_time">Time</string>
+
+    <string name="separator_overdue">Overdue</string>
+    <string name="separator_today">Today</string>
+    <string name="separator_tomorrow">Tomorrow</string>
+    <string name="separator_future">Future</string>
+    <string name="dialog_adding_canceled">Task adding cancel</string>
+    <string name="task_title">Title</string>
+    <string name="empty_string" translatable="false"><![CDATA[<p></p>]]></string>
+    <string name="search_hint">Search</string>
+    <string name="image_is_saved">"Image is saved: "</string>
+    <string name="close">Close</string>
+    <string name="about_text">
+        Application called WordNote designed for taking notes (tasks).
+        WordNote allows to customize note / task so
+        as required by the user, due to the capabilities of the WYSIWYG editor:
+        insert a picture, highlight text in bold / italics, change the text size and color,
+        add a clickable link to an external resource, make / remove the indentation,
+        highlight the text as a quote to add to the list or numbered markers,
+        insert a separator and clear all formatting, and set notifications for a given date / time and
+        change the priority tasks.\n
+Developer: Alox1d (Baranov A.Y.)
+        &#9400; 2020
+        Used libraries: \n https://github.com/irshuLx/Android-WYSIWYG-Editor \n
+        https://github.com/QuadFlask/colorpicker \n
+        https://github.com/hdodenhof/CircleImageView
+        DateParser
+    \nContacts:</string>
+    <string name="about_email" translatable="false">alox1d@mail.ru</string>
+    <string name="about_app_title">About app</string>
+    <string name="about_version_title">Version:&#8194;</string>
+    <string name="app_version" translatable="false">1.0</string>
+    <string name="popUpColor_choose">Choose color</string>
+    <string name="popUpColor_cancel">CANCEL</string>
+    <string name="description_optional">Description (optional)</string>
+    <string name="uploading">Uploading…</string>
+    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3447889636990475/2473885174</string>
+    <string name="sync_vk">Sync with VKontakte</string>
+    <string name="VK" translatable="false">VK</string>
+    <string name="dialog_vk_search_title">Choose a dialog</string>
+    <string name="how_to_use_title">How to use</string>
+    <string name="how_to_use_text">
+        To add a note after the splash screen, click "+" button in the lower right corner.
+        Next, after the opening of the dialogue fill in the required field application, and, if required, enter a description
+        (It can execute using formatting buttons at the bottom of the screen)
+        select the date / time reminder note and its priority. Click "OK" to confirm.
+        \ n
+        If necessary, edit the note - click on it.
+        \ n
+        To switch between lists "done" and "current" notes follow swipe left or right, respectively, or click on the desired category on the screen.
+        \ n
+        To mark a task as completed, click on the circle on the left side of the note title.
+        A similar action is required to move the notes from the list made in the current.
+        \ n
+        To search the notes use with a corresponding field with magnifying glass at the top of the screen.
+        \ n
+        To disable / enable the splash screen, select the appropriate option from the menu.
+        \n
+        For using backup, press "sync" button at the top-right corner.
+        \n
+        For voice-input, press "mic" button at the end of the note title on the add/edit note dialog.
+        \n
+        For OCR image text, press "camera" button at the bottom of editor toolbar on the add/edit note dialog.
+    </string>
+    <string name="popUpColor_picked">Picked</string>
+    <string name="ai_bar_header">Tomorrow...</string>
+    <string name="notification_channel_name">Notifications</string>
+    <string name="enable_dark_theme">Force enable dark theme</string>
+    <string name="Backup">Backup</string>
+    <string name="hms_drive_kit">Backup with a HUAWEI Drive</string>
+    <string name="Restore">Restore</string>
+    <string name="voice_recognition">Voice recognition</string>
+    <string name="video_frame">Video stream</string>
+    <string name="simplified_chinese">Simplified chinese</string>
+    <string name="english_choose">English</string>
+    <string name="russian_choose">Russian</string>
+    <string name="japanese_choose">Japanese</string>
+    <string name="korean_choose">Korean</string>
+    <string name="latin_choose">Latin</string>
+    <string name="loading_data">Loading…</string>
+    <string name="cloud_text">Cloud Text Recognition</string>
+    <string name="take_photo">Take photo</string>
+    <string name="select_from_album">Select image from album</string>
+
+    <string name="text_detection_s">Text Recognition</string>
+    <string name="first_backup">Please, backup or restore manually once for login</string>
+    <string name="login_success">Login Success</string>
+    <string name="restore_success">Restore success</string>
+    <string name="backup_success">Backup Success</string>
+    <string name="cloud_empty">Cloud is empty: nothing to restore</string>
+    <string name="file_doesnt_exist">The input file does not exist.</string>
+    <string name="offline_text_recognition">Offline Recognition \nFor a better Russian recognition by cloud, click the icon on the right</string>
+    <string name="parse_date">Parse date &amp; time</string>
+    <string name="error_code">\"Error Code \"</string>
+    <string name="failed_to_get_data">Failed to get data</string>
+    <string name="backup_is_running">Backup is running...</string>
+    <string name="hidden_notes">Hidden notes</string>
+    <string name="cant_auth">Can not authenticate. errorCode=</string>
+    <string name="auth_failed">Authentication failed.</string>
+    <string name="error_msg">Error message =</string>
+    <string name="auth_result">Authentication Result</string>
+    <string name="show_hidden_notes">Show hidden notes</string>
+    <string name="hide_note">Hide</string>
+    <string name="youtube">Youtube</string>
+    <integer name="com_vk_sdk_AppId">7314115</integer>
+
+</resources>

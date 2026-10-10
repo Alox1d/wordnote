@@ -1,0 +1,81 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/small_margin"
+    android:paddingBottom="@dimen/small_margin"
+    style="@style/ThemeOverlay.WordNote.AppWidgetContainer"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/appWidgetBackgroundColor"
+        android:orientation="vertical"
+
+        android:theme="@style/ThemeOverlay.WordNote.AppWidgetContainer"
+        android:weightSum="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.6"
+            android:weightSum="15"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:background="?attr/appWidgetBackgroundColor"
+            android:orientation="horizontal"
+            android:theme="@style/ThemeOverlay.WordNote.AppWidgetContainer">
+
+            <ImageButton
+                android:id="@+id/widget_add"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:src="@drawable/ic_add_circle_white_24dp" />
+
+            <ImageButton
+                android:id="@+id/widget_recognize_voice"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+
+                android:src="@drawable/ic_baseline_keyboard_voice_24" />
+
+            <ImageButton
+                android:id="@+id/widget_recognize_image"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="55dp"
+                android:layout_weight="5"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_text_recognition_icon_primary" />
+
+
+            <!--    <TextView-->
+            <!--        android:id="@+id/appwidget_text"-->
+            <!--        android:layout_width="wrap_content"-->
+            <!--        android:layout_height="wrap_content"-->
+            <!--        android:layout_centerHorizontal="true"-->
+            <!--        android:layout_centerVertical="true"-->
+            <!--        android:layout_margin="8dp"-->
+            <!--        android:background="?attr/appWidgetBackgroundColor"-->
+            <!--        android:contentDescription="@string/appwidget_text"-->
+            <!--        android:text="@string/appwidget_text"-->
+            <!--        android:textColor="?attr/appWidgetTextColor"-->
+            <!--        android:textSize="24sp"-->
+            <!--        android:textStyle="bold|italic" />-->
+
+        </LinearLayout>
+
+<!--        <LinearLayout-->
+
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:padding="-50dp"-->
+<!--            android:layout_weight="0.4"-->
+<!--            android:background="?attr/appWidgetBackgroundSecondColor"-->
+<!--            android:theme="@style/ThemeOverlay.WordNote.AppWidgetContainer" />-->
+    </LinearLayout>
+</FrameLayout>

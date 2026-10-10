@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/scrollView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/cv_horScroll_editor_container"
+        android:layout_alignParentTop="true"
+
+        app:layout_constraintBottom_toTopOf="@+id/cv_horScroll_editor_container"
+        app:layout_constraintTop_toTopOf="parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/constraint_Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/medium_margin"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="@dimen/medium_margin"
+
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_DialogTaskTitle"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/ll_taskTitleImageButtons"
+                    app:endIconContentDescription="@string/parse_date"
+                    app:endIconDrawable="@drawable/ic_baseline_update_24"
+                    app:endIconMode="custom"
+                    app:endIconTint="?colorPrimary"
+
+                    app:endIconTintMode="src_atop">
+
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="text|textMultiLine"
+                        android:textSize="16sp"
+
+
+                        />
+
+                    <requestFocus />
+                </com.google.android.material.textfield.TextInputLayout>
+                <LinearLayout
+                    android:id="@+id/ll_taskTitleImageButtons"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="vertical">
+                    <ImageButton
+                        android:id="@+id/ib_taskTitleRecognizeImage"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:maxHeight="10dp"
+                        android:maxWidth="10dp"
+                        android:layout_marginTop="@dimen/small_margin"
+                        android:layout_marginStart="4dp"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        android:scaleType="centerInside"
+                        android:background="?attr/selectableItemBackground"
+                        app:srcCompat="@drawable/ic_text_recognition_icon"
+                        app:tint="?colorPrimary" />
+
+                    <ImageButton
+                        android:id="@+id/ib_taskTitleRecognizeVoice"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:maxHeight="10dp"
+                        android:maxWidth="10dp"
+                        android:layout_marginStart="4dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:background="?attr/selectableItemBackground"
+                        app:srcCompat="@drawable/ic_baseline_keyboard_voice_24"
+                        android:tint="?colorPrimary" />
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <ScrollView
+                android:id="@+id/sv_dialogEditor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/constraint_Title"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+
+                android:layout_marginRight="16dp"
+
+                android:scrollbars="vertical"
+
+
+                >
+
+
+                <com.github.irshulx.Editor
+
+                    android:id="@+id/editor_dialogDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/editor_rect"
+                    android:elevation="2dp"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="10dp"
+                    android:paddingRight="16dp"
+                    android:paddingBottom="50dp"
+                    app:placeholder="@string/task_description"
+
+                    app:render_type="Editor"></com.github.irshulx.Editor>
+            </ScrollView>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDialogTaskDate"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="130dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sv_dialogEditor"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+
+
+                android:enabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:cursorVisible="false"
+                    android:focusableInTouchMode="false"
+                    android:inputType="none"
+                    android:textSize="16sp"
+
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDialogTaskTime"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="130dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sv_dialogEditor"
+                android:layout_alignEnd="@+id/sv_dialogEditor"
+                android:layout_alignRight="@+id/sv_dialogEditor"
+                android:layout_marginTop="16dp"
+
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:cursorVisible="false"
+                    android:focusableInTouchMode="false"
+                    android:inputType="none"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Spinner
+                android:id="@+id/spDialogTaskPriority"
+                android:layout_width="130dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tilDialogTaskDate"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="16dp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchHidden"
+                android:layout_width="130dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tilDialogTaskDate"
+                android:layout_alignParentEnd="true"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="16dp"
+                android:text="@string/hide_note" />
+        </RelativeLayout>
+    </ScrollView>
+
+    <FrameLayout
+        android:id="@+id/cv_horScroll_editor_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="?colorSurface"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+
+        <HorizontalScrollView
+            android:id="@+id/horScroll_editor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:alpha="1.0"
+            android:requiresFadingEdge="horizontal"
+
+            android:scrollbars="none"
+
+            >
+<!--TODO Show only in focus-->
+            <include
+
+                layout="@layout/editor_toolbar_linearlayout_horizontal" />
+
+
+        </HorizontalScrollView>
+    </FrameLayout>
+</RelativeLayout>
+
+

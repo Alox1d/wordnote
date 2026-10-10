@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fab_accept"
+    style="@style/Widget.MaterialComponents.FloatingActionButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top"
+    android:layout_margin="@dimen/fab_margin"
+    android:src="@drawable/ic_check_white_48dp"
+    android:layout_alignParentBottom="true"
+    android:layout_centerHorizontal="true"
+    android:enabled="false"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

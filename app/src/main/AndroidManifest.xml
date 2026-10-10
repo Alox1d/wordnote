@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ru.alox1d.wordnote.huawei">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="com.huawei.mlkit.asr.permission" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <application
+        android:name=".WordNoteApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:process=":remote"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.WordNote">
+
+        <receiver
+            android:name=".ui.widgets.ButtonsWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_buttons_info" />
+        </receiver>
+
+        <service
+            android:name=".device.service.drive.BackupForegroundService"
+            android:enabled="true"
+            android:permission="android.permission.FOREGROUND_SERVICE">
+        </service>
+
+        <activity
+            android:name=".ui.scenes.tasks.TasksActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.scenes.backup.BackupActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.scenes.backup.TransparentBackupActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Transparent" />
+
+        <receiver
+            android:name="ru.alox1d.wordnote.huawei.device.alarm.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="ru.alox1d.wordnote.huawei.device.alarm.AlarmSetter"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".ui.scenes.textrecognition.TextRecognitionActivity"
+            android:launchMode="singleTask"
+            android:resizeableActivity="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.scenes.textrecognition.RemoteDetectionActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|keyboardHidden|orientation"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <meta-data
+            android:name="com.huawei.hms.ml.DEPENDENCY"
+            android:value="ocr" />
+
+    </application>
+
+</manifest>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--Top level DayNight theme to be used in AndroidManifest.xml-->
+    <style name="Theme.WordNote" parent="Base.Theme.MyApp">
+        <!--Material color attributes (dark theme) -->
+        <item name="colorPrimary">@color/purple_custom_dark</item>
+        <item name="colorPrimaryVariant">@color/purple_custom_variant_dark</item>
+        <item name="colorSecondary">@color/pink_custom</item>
+        <item name="colorSecondaryVariant">@color/pink_custom_variant</item>
+        <item name="android:colorBackground">@color/black_900</item>
+        <item name="colorSurface">@color/black_800</item>
+        <item name="colorError">@color/red_200</item>
+        <item name="colorOnPrimary">@color/black_900</item>
+        <item name="colorOnSecondary">@color/black_900</item>
+        <item name="colorOnBackground">@color/white_50</item>
+        <item name="colorOnSurface">@color/white_50</item>
+        <item name="colorOnError">@color/black_900</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">false</item>
+    </style>
+
+    <style name="ThemeOverlay.WordNote.AppWidgetContainer" parent="">
+        <item name="appWidgetBackgroundColor">@color/black_800</item>
+        <item name="android:background">@drawable/widget_background_shape_black</item>
+
+    </style>
+</resources>

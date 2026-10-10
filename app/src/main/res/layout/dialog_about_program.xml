@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/grid_about"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:columnCount="2"
+    android:orientation="horizontal"
+    android:padding="@dimen/medium_margin">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/linear_about"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                >
+
+
+                <TextView
+                    android:id="@+id/textViewAboutAppName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="@dimen/medium_margin"
+                    android:text="@string/app_name"
+                    android:textColor="?colorPrimary"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/textViewAboutText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/linear_about"
+                android:layout_marginTop="@dimen/medium_margin"
+                android:text="@string/about_text" />
+
+            <LinearLayout
+                android:id="@+id/linear_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/textViewAboutText">
+
+                <ImageView
+                    android:id="@+id/imageViewEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_email_white_24dp" />
+
+                <TextView
+                    android:id="@+id/textViewAboutEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/medium_margin"
+                    android:autoLink="email"
+                    android:text="@string/about_email"
+                    android:layout_marginLeft="@dimen/medium_margin" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textViewAboutVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/linear_email"
+                android:text="@string/about_version_title"
+                android:layout_toLeftOf="@id/textViewVersion"
+                android:layout_toStartOf="@id/textViewVersion" />
+
+            <TextView
+                android:id="@+id/textViewVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/linear_email"
+                android:text="@string/app_version"
+                android:layout_alignParentRight="true" />
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

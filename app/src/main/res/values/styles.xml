@@ -1,0 +1,251 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="OldAppTheme" parent="Theme.MaterialComponents.DayNight">
+
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <!--        DEPENDS ON DARK WHITE THEME-->
+        <item name="colorPrimaryVariant">@color/purple_custom_variant_light</item>
+
+        <item name="colorOnPrimary">@color/pink_custom</item>
+        <item name="colorSecondary">@color/pink_custom</item>
+        <item name="colorSecondaryVariant">@color/pink_custom_variant</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorError">#F44336</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">#212121</item>
+        <!--        <item name="android:colorBackground">@color/backgroundColor</item>-->
+        <item name="colorOnBackground">#212121</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@android:color/transparent
+        </item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <!--        <item name="colorSecondary">@color/colorSecondary</item>-->
+        <!--        <item name="colorSecondaryVariant">@color/secondaryLightColor</item>-->
+
+        <!--        <item name="colorOnPrimary">@color/primaryTextColor</item>-->
+        <!--        <item name="colorOnSecondary">@color/primaryTextColor</item>-->
+        <!--        <item name="colorError">#FF0000</item>-->
+        <!--        <item name="colorOnBackground">@color/primaryTextColor</item>-->
+        <!-- Customize your theme here. -->
+        <item name="android:actionOverflowButtonStyle">@style/ActionButtonOverflow</item>
+        <item name="textAppearanceHeadline6">@style/CustomHeadline6</item>
+
+
+    </style>
+
+    <style name="WordNote.Toolbar" parent="@style/Widget.MaterialComponents.Toolbar">
+        <item name="titleTextColor">?colorPrimary</item>
+        <item name="titleTextAppearance">@style/TextAppearance.MyTheme.Headline6</item>
+
+        <!--        -->
+        <!--        <item name="android:textColorPrimary">?colorPrimary</item>-->
+        <!--        <item name="android:textColorSecondary">@color/gray_200</item>-->
+        <!--        <item name="background">@color/black</item>-->
+        <!--        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Crane.MediumComponent</item>-->
+        <!--        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Crane.SmallComponent</item>-->
+        <!--        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Crane.MediumComponent</item>-->
+        <!--        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Crane.LargeComponent</item>-->
+    </style>
+
+    <!--    <style name="ThemeOverlay.AppTheme.PopupMenu" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">-->
+    <!--        <item name="android:background">@color/white</item>-->
+    <!--        <item name="android:textColorPrimary">@color/secondaryColor</item>-->
+    <!--    </style>-->
+
+    <style name="ActionButtonOverflow" parent="android:style/Widget.Holo.Light.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_baseline_more_vert_24</item>
+        <item name="tint">?colorPrimary</item>
+    </style>
+
+    <style name="CustomHeadline6" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textSize">22sp</item>
+        <!--        <item name="android:textColor">@color/primaryDarkColor</item>-->
+    </style>
+
+    <style name="WordNote.Task.Dialog.Alert" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+<!--        <item name="colorAccent">@color/colorAccent</item>-->
+<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
+<!--        <item name="android:windowIsFloating">false</item>-->
+<!--        <item name="android:windowBackground">@android:color/white</item>-->
+<!--        <item name="actionMenuTextColor">@color/colorAccent</item>-->
+
+<!--                <item name="android:layout_width">fill_parent</item>-->
+<!--                <item name="android:layout_height">fill_parent</item>-->
+        <!-- No backgrounds, titles or window float -->
+<!--                <item name="android:windowBackground">?colorSurface</item>-->
+<!--                <item name="android:textColor">?colorPrimary</item>-->
+<!--                <item name="elevation">0dp</item>-->
+<!--                <item name="elevationOverlayEnabled">false</item>-->
+<!--                <item name="android:windowElevation">0dp</item>-->
+<!--                <item name="android:windowNoTitle">true</item>-->
+<!--                <item name="android:windowIsFloating">false</item>-->
+
+        <!--        <item name="materialAlertDialogTitleTextStyle">@style/WordNote.TitleTextAppearance.FullMaterialAlertDialog.MaterialComponents.Body</item>-->
+
+        <!--        REMOVES STATUS BAR-->
+        <!--                <item name="android:windowTranslucentStatus">true</item>-->
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- No backgrounds, titles or window float -->
+        <item name="android:windowBackground">?colorSurface</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+
+        <!--        <item name="materialAlertDialogTitleTextStyle">@style/WordNote.TitleTextAppearance.MaterialAlertDialog</item>-->
+        <item name="android:windowAnimationStyle">@style/WordNote.Window</item>
+    </style>
+    <style name="WordNote.Window" parent="@android:style/Animation.Activity">
+        <item name="android:windowEnterAnimation">@anim/anim_alert_in</item>
+        <item name="android:windowExitAnimation">@anim/anim_alert_out</item>
+    </style>
+    <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/purple_custom_dark</item>
+    </style>
+
+    <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/purple_custom_dark</item>
+    </style>
+    <style name="ThemeOverlay.Crane.MaterialComponents.Dialog.Alert" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Crane.SmallComponent
+        </item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Crane.MediumComponent
+        </item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Crane.LargeComponent
+        </item>
+
+        <!--        <item name="shapeAppearanceOverlay">-->
+        <!--            @style/ShapeAppearanceOverlay.MaterialAlertDialog.Rounded-->
+        <!--        </item>// For rounded dialog-->
+        <!--        <item name="materialAlertDialogTitleTextStyle">-->
+        <!--            @style/TitleMaterialAlertDialog.MaterialComponents.Title.Text-->
+        <!--        </item>//to change title text properties of dialog-->
+        <item name="materialAlertDialogBodyTextStyle">
+            @style/WordNote.BodyTextAppearance.MaterialAlertDialog</item>//to change body text
+        properties of dialog
+    </style>
+    <style name="WordNote.Dialog.Alert" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+
+<!--        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Crane.SmallComponent-->
+<!--        </item>-->
+<!--        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Crane.MediumComponent-->
+<!--        </item>-->
+<!--        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Crane.LargeComponent-->
+<!--        </item>-->
+        <item name="android:windowBackground">@drawable/popupmenu_background</item> </style>
+
+    <style name="WordNote.Button" parent="Widget.MaterialComponents.Button">
+
+        <item name="android:textAppearance">@style/TextAppearance.MyTheme.Headline5</item>
+        <!--        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Crane.SmallComponent-->
+        <!--        </item>-->
+        <!--        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Crane.MediumComponent-->
+        <!--        </item>-->
+        <!--        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Crane.LargeComponent-->
+        <!--        </item>-->
+
+
+
+    </style>
+
+    <style name="WordNote.PopupMenu" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@drawable/popupmenu_background</item>
+    </style>
+
+
+    <style name="WidgetEditText" parent="Widget.AppCompat.EditText">
+        <!--        <item name="color">@color/colorSecondary</item>-->
+        <!--        <item name="colorPrimary">@color/primaryColor</item>-->
+        <!--        <item name="colorPrimaryDark">@color/primaryDarkColor</item>-->
+        <!--        <item name="colorAccent">@color/colorSecondary</item>-->
+        <!--        <item name="backgroundColor">@color/colorSecondary</item>-->
+
+
+        <!--        <item name="android:background">@color/secondaryLightColor</item>-->
+        <!--        <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>-->
+        <!--        <item name="android:background">@drawable/widget_et_background_shape</item>-->
+        <item name="backgroundTint">@color/pink_custom</item>
+        <item name="android:backgroundTint" tools:targetApi="lollipop">?colorPrimary</item>
+
+    </style>
+
+
+    <!--    &lt;!&ndash;Bottom Sheets&ndash;&gt;-->
+    <!--    <style name="ThemeOverlay.MyTheme.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.Dialog">-->
+    <!--        <item name="android:windowIsFloating">false</item>-->
+    <!--        <item name="android:windowBackground">@android:color/transparent</item>-->
+    <!--        <item name="android:windowAnimationStyle">@style/Animation.MyTheme.BottomSheet.Modal</item>-->
+    <!--        <item name="android:statusBarColor">@android:color/transparent</item>-->
+    <!--        <item name="bottomSheetStyle">@style/Widget.MyTheme.BottomSheet.Modal</item>-->
+    <!--        <item name="android:navigationBarColor">?attr/colorSurface</item>-->
+    <!--        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">@android:color/transparent</item>-->
+    <!--    </style>-->
+    <!--    <style name="Widget.MyTheme.BottomSheet.Modal" parent="Widget.MaterialComponents.BottomSheet.Modal">-->
+    <!--        <item name="shapeAppearanceOverlay">?attr/shapeAppearanceLargeComponent</item>-->
+    <!--    </style>-->
+
+    <!--    &lt;!&ndash;Navigation Drawer&ndash;&gt;-->
+    <!--    <style name="Widget.MyTheme.NavigationView" parent="Widget.MaterialComponents.NavigationView">-->
+    <!--        <item name="itemTextAppearance">?attr/textAppearanceBody2</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="WordNote.ActionBar" parent="Widget.MaterialComponents.ActionBar.Surface">-->
+    <!--        <item name="titleTextColor">@android:color/white</item>-->
+    <!--        <item name="subtitleTextColor">@android:color/white</item>-->
+    <!--        <item name="actionMenuTextColor">@color/white_50</item>-->
+    <!--        <item name="android:titleTextStyle">@style/myActionBarTextTitle</item>-->
+
+
+    <!--    </style>-->
+    <!--    <style name="myActionBarTextTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">-->
+    <!--        <item name="android:textColor">?colorPrimary</item>-->
+    <!--    </style>-->
+    <!-- This will set the fade in animation on your change theme activity by default -->
+    <style name="WindowAnimationTransition">
+        <item name="android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+    <style name="Theme.Transparent" parent="android:Theme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+    <style name="AddPictureDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@style/AddPictureDialogAnim</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+    <style name="AddPictureDialogAnim" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/anim_in</item>
+    </style>
+    <style name="progress_dialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@null</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+    <style name="common_line">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0.25dp</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
+        <item name="android:background">@color/common_line_color</item>
+    </style>
+</resources>

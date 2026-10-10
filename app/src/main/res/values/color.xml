@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="priority_high">#d300aa</color>
+    <color name="priority_normal">#8567FF</color>
+    <color name="priority_low">#b3a6db</color>
+    <color name="priority_high_selected">#D690C3</color>
+    <color name="priority_normal_selected">#BBACFA</color>
+    <color name="priority_low_selected">#C7C2E0</color>
+
+    <color name="gray_50">#FAFAFA</color>
+    <color name="gray_200">#EEEEEE</color>
+    <color name="colorTransparent">#00000000</color>
+    <color name="black">#000000</color>
+
+    <color name="selected_comment_background">#010101</color>
+
+    <color name="comment_background">#C4C5CC</color>
+
+    <!--Color palette-->
+
+    <color name="purple_custom_dark">#8567ff</color> <!--Color primary (dark)-->
+    <color name="purple_custom_light">#4a3ad9</color> <!--Color primary (light)-->
+    <color name="purple_custom_variant_dark">#4738CA</color> <!--Color primary variant (dark)-->
+    <color name="purple_custom_variant_light">#30029A</color> <!--Color primary variant (light)-->
+
+    <color name="pink_custom">#978adc</color> <!--Color secondary-->
+    <color name="pink_custom_variant">#675daa</color> <!--Color secondary variant-->
+
+    <color name="red_200">#cf6679</color> <!--Color error (dark)-->
+    <color name="red_600">#b00020</color> <!--Color error (light)-->
+
+    <!--Color surface (light), color on error (light), -->
+    <!--color on surface (dark), color on surface (dark)-->
+    <color name="white_50">#ffffff</color>
+
+    <color name="black_800">#121212</color> <!--Color surface (dark)-->
+    <!--Color on secondary (light), color on background (light),-->
+    <!--color on surface (light)-->
+    <color name="black_900">#000000</color>
+
+    <color name="qr_code_reader_square">#FFFFFFFF</color>
+
+    <!--BACKUP-->
+
+<!--    <color name="purple_200">#bb86fc</color> &lt;!&ndash;Color primary (dark)&ndash;&gt;-->
+<!--    <color name="purple_500">#6200ee</color> &lt;!&ndash;Color primary (light)&ndash;&gt;-->
+<!--    <color name="purple_600">#4b01d0</color> &lt;!&ndash;Color primary variant (dark)&ndash;&gt;-->
+<!--    <color name="purple_700">#3700b3</color> &lt;!&ndash;Color primary variant (light)&ndash;&gt;-->
+
+<!--    <color name="green_200">#03dac6</color> &lt;!&ndash;Color secondary&ndash;&gt;-->
+<!--    <color name="green_500">#018786</color> &lt;!&ndash;Color secondary variant&ndash;&gt;-->
+
+<!--    <color name="red_200">#cf6679</color> &lt;!&ndash;Color error (dark)&ndash;&gt;-->
+<!--    <color name="red_600">#b00020</color> &lt;!&ndash;Color error (light)&ndash;&gt;-->
+
+<!--    &lt;!&ndash;Color surface (light), color on error (light), &ndash;&gt;-->
+<!--    &lt;!&ndash;color on surface (dark), color on surface (dark)&ndash;&gt;-->
+<!--    <color name="white_50">#ffffff</color>-->
+
+<!--    <color name="black_800">#121212</color> &lt;!&ndash;Color surface (dark)&ndash;&gt;-->
+<!--    &lt;!&ndash;Color on secondary (light), color on background (light),&ndash;&gt;-->
+<!--    &lt;!&ndash;color on surface (light)&ndash;&gt;-->
+<!--    <color name="black_900">#000000</color>-->
+</resources>

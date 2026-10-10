@@ -1,0 +1,96 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+// Supply your own Huawei project configuration for cloud features.
+if (file('agconnect-services.json').exists()) {
+    apply plugin: 'com.huawei.agconnect'
+}
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 32
+
+    defaultConfig {
+        applicationId "ru.alox1d.wordnote.huawei"
+        minSdkVersion 19
+        targetSdkVersion 32
+        versionCode 10001201
+        versionName "1.2.1"
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+        }
+
+    }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+}
+androidExtensions {
+    experimental = true
+}
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.5.0'
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
+
+    implementation "androidx.core:core-ktx:1.7.0"
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.github.QuadFlask:colorpicker:0.0.15'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    implementation project(path: ':laser-native-editor')
+    implementation project(":dateparser-release")
+
+    implementation 'com.huawei.hms:ads-lite:13.4.54.300'
+    implementation 'com.huawei.hms:drive:5.0.0.302'
+    implementation 'com.huawei.hms:hwid:6.4.0.301'
+
+    implementation 'com.huawei.hms:push:6.3.0.304'
+
+    // Import the ASR plug-in.
+    implementation 'com.huawei.hms:ml-computer-voice-asr:3.4.0.302'
+    implementation 'com.huawei.hms:ml-computer-voice-asr-plugin:3.4.0.302'
+
+    // Import the base SDK.
+    implementation 'com.huawei.hms:ml-computer-vision-ocr:3.4.0.301'
+    // Import the Latin-based language model package.
+    implementation 'com.huawei.hms:ml-computer-vision-ocr-latin-model:3.4.0.301'
+    // Import the Chinese and English model package.
+    implementation 'com.huawei.hms:ml-computer-vision-ocr-jk-model:3.4.0.301'
+    implementation 'com.huawei.hms:ml-computer-vision-ocr-cn-model:3.4.0.301'
+    //FIDO
+    implementation 'com.huawei.hms:fido-bioauthn-androidx:5.0.2.303'
+    implementation 'com.huawei.agconnect:agconnect-core:1.5.0.300'
+
+    // TP
+    implementation 'com.github.stephanenicolas.toothpick:ktp:3.1.0'
+    implementation 'com.github.stephanenicolas.toothpick:smoothie-lifecycle-ktp:3.1.0'
+    implementation 'com.github.stephanenicolas.toothpick:smoothie-androidx:3.1.0'
+    implementation 'com.github.stephanenicolas.toothpick:smoothie-lifecycle-ktp:3.1.0'
+    kapt 'com.github.stephanenicolas.toothpick:toothpick-compiler:3.1.0'
+}
+repositories {
+    mavenCentral()
+}
+
