@@ -20,6 +20,7 @@ android {
         versionCode 10001201
         versionName "1.2.1"
         multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
     testOptions {
@@ -61,6 +62,9 @@ dependencies {
 
     implementation project(path: ':laser-native-editor')
     implementation project(':dateparser-release')
+
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.robolectric:robolectric:4.16.1'

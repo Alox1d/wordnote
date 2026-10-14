@@ -96,7 +96,10 @@ object AttachmentReferences {
                     require(content.asJsonArray.size() >= 1 && content.asJsonArray[0].asString.isNotBlank() && childNodes.size() == 1) { "Invalid image block" }
                     visit(childNodes[0], setOf("IMG_SUB"), depth + 1)
                 }
-                "ul", "ol" -> childNodes.forEach { visit(it, setOf(if (type == "ul") "UL_LI" else "OL_LI"), depth + 1) }
+                "ul", "ol" -> {
+                    require(children != null && children.isJsonArray) { "Missing list children" }
+                    childNodes.forEach { visit(it, setOf(if (type == "ul") "UL_LI" else "OL_LI"), depth + 1) }
+                }
                 "map" -> {
                     require(content.asJsonArray.size() >= 2 && childNodes.size() == 0) { "Invalid map block" }
                     val coordinates = content.asJsonArray[0].asString.split(",")

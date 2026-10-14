@@ -23,6 +23,8 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.example.toothpick.annotation.ApplicationScope
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
@@ -54,9 +56,29 @@ import java.util.*
 abstract class TaskDialog() : DialogFragment() {
     private var hasSensitiveContent = false
     private var restoredDraft: Bundle? = null
+    private val auxiliaryDialogs = linkedSetOf<Dialog>()
+    private val childDialogs = mutableMapOf<Fragment, Dialog>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        childFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
+            override fun onFragmentViewCreated(fm: FragmentManager, fragment: Fragment, view: View, state: Bundle?) {
+                val child = (fragment as? DialogFragment)?.dialog ?: return
+                childDialogs[fragment] = child
+                auxiliaryDialogs += child
+                rememberSensitivity()
+            }
+
+            override fun onFragmentStarted(fm: FragmentManager, fragment: Fragment) {
+                val child = childDialogs[fragment] ?: return
+                // A child DialogFragment shows itself during onStart; mask it before the next draw.
+                if (hasSensitiveContent && (dialog?.isShowing != true || !WordNoteApp.isActivityVisible)) child.hide()
+            }
+
+            override fun onFragmentDestroyed(fm: FragmentManager, fragment: Fragment) {
+                childDialogs.remove(fragment)?.let { auxiliaryDialogs.remove(it) }
+            }
+        }, false)
         restoredDraft = savedInstanceState?.getBundle(DRAFT_STATE)
         isTitleImageRecognition = savedInstanceState?.getBoolean("ocr_title") == true
         isDescriptionImageRecognition = savedInstanceState?.getBoolean("ocr_body") == true
@@ -71,7 +93,10 @@ abstract class TaskDialog() : DialogFragment() {
             (::switchHidden.isInitialized && switchHidden.isChecked)) {
             hasSensitiveContent = true
         }
-        if (hasSensitiveContent) dialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        if (hasSensitiveContent) {
+            dialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            auxiliaryDialogs.forEach { it.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE) }
+        }
     }
 
     fun refreshHiddenNotesVisibility(): Boolean {
@@ -79,9 +104,11 @@ abstract class TaskDialog() : DialogFragment() {
         val currentDialog = dialog ?: return false
         if (hasSensitiveContent && (!WordNoteApp.isHiddenNotesUnlocked || !WordNoteApp.isActivityVisible)) {
             currentDialog.hide()
+            auxiliaryDialogs.forEach { it.hide() }
             return false
         }
         currentDialog.show()
+        auxiliaryDialogs.forEach { it.show() }
         return true
     }
 
@@ -100,8 +127,26 @@ abstract class TaskDialog() : DialogFragment() {
 
     override fun onPause() {
         rememberSensitivity()
-        if (hasSensitiveContent) dialog?.hide()
+        if (hasSensitiveContent) {
+            dialog?.hide()
+            auxiliaryDialogs.forEach { it.hide() }
+        }
         super.onPause()
+    }
+
+    protected fun showAuxiliaryDialog(child: Dialog) {
+        rememberSensitivity()
+        if (hasSensitiveContent) child.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        auxiliaryDialogs += child
+        child.setOnDismissListener { auxiliaryDialogs.remove(child) }
+        if (dialog?.isShowing == true) child.show()
+    }
+
+    override fun onDestroyView() {
+        auxiliaryDialogs.toList().forEach { it.dismiss() }
+        auxiliaryDialogs.clear()
+        childDialogs.clear()
+        super.onDestroyView()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -172,7 +217,7 @@ abstract class TaskDialog() : DialogFragment() {
                     .setNegativeButton(requireActivity().resources.getString(R.string.dialog_cancel)) { dialog, which -> }
                     .build()
             colorPickerDialogBuilder.window!!.setBackgroundDrawableResource(R.drawable.dialog_background)
-            colorPickerDialogBuilder.show()
+            showAuxiliaryDialog(colorPickerDialogBuilder)
         }
         container.findViewById<View>(R.id.action_insert_image).setOnClickListener {
             editor.openImagePicker()
@@ -185,7 +230,7 @@ abstract class TaskDialog() : DialogFragment() {
             isDescriptionVoiceRecognition = true
             recognizeVoice()
         }
-        container.findViewById<View>(R.id.action_insert_link).setOnClickListener { editor.insertLink() }
+        container.findViewById<View>(R.id.action_insert_link).setOnClickListener { showAuxiliaryDialog(editor.createLinkDialog()) }
         container.findViewById<View>(R.id.action_erase).setOnClickListener { editor.clearAllContents() }
         val headingTypeface = Utils.getHeadingTypeface()
         val contentTypeface = Utils.getContentface()

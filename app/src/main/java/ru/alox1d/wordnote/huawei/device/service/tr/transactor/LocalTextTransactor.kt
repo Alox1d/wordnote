@@ -64,6 +64,7 @@ class LocalTextTransactor(handler: Handler, private val mContext: Context) : Bas
         }
 
     override fun stop() {
+        super.stop()
         try {
             detector.close()
         } catch (e: IOException) {

@@ -24,6 +24,8 @@ public class BaseTextRecognitionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Document images and recognition results remain private on every OCR entry point.
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
     }
 
     /**

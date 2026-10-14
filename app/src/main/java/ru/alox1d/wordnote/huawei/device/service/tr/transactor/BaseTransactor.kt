@@ -5,7 +5,9 @@ import android.util.Log
 import com.huawei.hmf.tasks.Task
 import com.huawei.hms.mlsdk.common.MLFrame
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import ru.alox1d.wordnote.huawei.device.service.tr.camera.CameraConfiguration
 import ru.alox1d.wordnote.huawei.device.service.tr.camera.FrameMetadata
@@ -47,6 +49,9 @@ abstract class BaseTransactor<T> : ImageTransactor {
         }
     }
 
+    private val callbackScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    @Volatile private var stopped = false
+
     // To keep the latest images and its metadata.
     private var latestImage: ByteBuffer? = null
     private var latestImageMetaData: FrameMetadata? = null
@@ -56,6 +61,7 @@ abstract class BaseTransactor<T> : ImageTransactor {
     private var transactingMetaData: FrameMetadata? = null
     @Synchronized
     override fun process(data: ByteBuffer, frameMetadata: FrameMetadata, graphicOverlay: GraphicOverlay) {
+        if (stopped) return
         latestImage = data
         latestImageMetaData = frameMetadata
         if (transactingImage == null && transactingMetaData == null) {
@@ -63,13 +69,16 @@ abstract class BaseTransactor<T> : ImageTransactor {
         }
     }
 
+    @Synchronized
     override fun process(bitmap: Bitmap, graphicOverlay: GraphicOverlay) {
+        if (stopped) return
         val frame = MLFrame.Creator().setBitmap(bitmap).create()
         detectInVisionImage(bitmap, frame, null, graphicOverlay)
     }
 
     @Synchronized
     private fun processLatestImage(graphicOverlay: GraphicOverlay) {
+        if (stopped) return
         transactingImage = latestImage
         transactingMetaData = latestImageMetaData
         latestImage = null
@@ -95,17 +104,36 @@ abstract class BaseTransactor<T> : ImageTransactor {
                                     graphicOverlay: GraphicOverlay) {
         detectInImage(image)
                 .addOnSuccessListener { results ->
-                    if (metadata == null || metadata.cameraFacing == CameraConfiguration.getCameraFacing()) {
-                        GlobalScope.launch(Dispatchers.Main) {
-                            this@BaseTransactor.onSuccess(bitmap, results, metadata, graphicOverlay)
+                    callbackScope.launch {
+                        try {
+                            if (!stopped && (metadata == null || metadata.cameraFacing == CameraConfiguration.getCameraFacing())) {
+                                this@BaseTransactor.onSuccess(bitmap, results, metadata, graphicOverlay)
+                            }
+                        } finally {
+                            if (metadata != null) processLatestImage(graphicOverlay)
                         }
                     }
-                    processLatestImage(graphicOverlay)
                 }
-                .addOnFailureListener { e -> this@BaseTransactor.onFailure(e) }
+                .addOnFailureListener { e ->
+                    callbackScope.launch {
+                        try {
+                            if (!stopped) this@BaseTransactor.onFailure(e)
+                        } finally {
+                            if (metadata != null) processLatestImage(graphicOverlay)
+                        }
+                    }
+                }
     }
 
-    override fun stop() {}
+    @Synchronized
+    override fun stop() {
+        stopped = true
+        callbackScope.cancel()
+        latestImage = null
+        latestImageMetaData = null
+        transactingImage = null
+        transactingMetaData = null
+    }
 
     /**
      * detect

@@ -113,7 +113,7 @@ class EditTaskDialogFragment : TaskDialog() {
                     val currentDate = Utils.getDate(calendar.timeInMillis)
                     etDate.setText(currentDate)
                 }
-            datePickerController.show(fragmentManager)
+            datePickerController.show(childFragmentManager)
         }
         etTime.setOnClickListener {
             val timePickerFragment: TimePickerController = object : TimePickerController() {
@@ -124,7 +124,7 @@ class EditTaskDialogFragment : TaskDialog() {
                     etTime.setText(Utils.getTime(calendar.timeInMillis))
                 }
             }
-            timePickerFragment.createDialog(etTime.context).show()
+            showAuxiliaryDialog(timePickerFragment.createDialog(etTime.context))
         }
         builder.setPositiveButton(R.string.dialog_ok) { dialog, which ->
             task.title = etTitle.text.toString()
