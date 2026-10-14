@@ -1,8 +1,8 @@
-<p align="center"><img src="assets/poster.png" alt="WordNote — a place for ideas" width="100%"></p>
+<p align="center"><img src="assets/poster.png" alt="WordNote - a place for ideas" width="100%"></p>
 
 # WordNote
 
-An Android notebook by Alexander Baranov with rich text, reminders, widgets and Huawei integrations. My graduation project at ИГЭУ им. Ленина and the app with which I won the **APP student category at [Huawei Cup 2020](https://www.huawei.ru/news/obyavleny-luchshie-razrabotchiki-mobilnykh-prilozheniy-v-ramkakh-sorevnovaniya-huawei-cup-2020/)**. Now shared as source for exploring its architecture and features.
+An Android notebook by Alexander Baranov with rich text, reminders, widgets and Huawei integrations. My graduation project at Ivanovo State Power Engineering University and the app with which I won the **APP student category at [Huawei Cup 2020](https://www.huawei.ru/news/obyavleny-luchshie-razrabotchiki-mobilnykh-prilozheniy-v-ramkakh-sorevnovaniya-huawei-cup-2020/)**. Now shared as source for exploring its architecture and features.
 
 ## Inside
 
@@ -14,14 +14,15 @@ An Android notebook by Alexander Baranov with rich text, reminders, widgets and 
 
 ## Project structure
 
-`app` contains the Kotlin/Java application. `app/libs/laser-native-editor` contains the adapted editor library, with its original attribution. `dateparser-release` contains the historical DateParser AAR; the maintained parser source is at [Alox1d/dateparser](https://github.com/Alox1d/dateparser). The bundled AAR predates that repository's current fixes.
+`app` contains the Kotlin/Java application. `app/libs/laser-native-editor` contains the adapted editor library, with its original attribution. `dateparser-release` contains the historical DateParser AAR; the maintained parser source is at [DateParser Kotlin](https://github.com/Alox1d/dateparser-kotlin). The bundled AAR predates that repository's current fixes.
 
 ## Building the historical app
 
 The project retains Gradle 6.4.1, Android Gradle Plugin 4.0.0, Kotlin 1.6.10 and Android SDK 32. Use a compatible older JDK (for example JDK 11), configure `sdk.dir` in a local `local.properties`, and run:
 
 ```sh
-./gradlew :app:assembleDebug
+./gradlew \
+  :app:assembleDebug
 ```
 
 This is legacy tooling and dependency availability can require migration. A fresh APK build has not been verified for this public release; do not treat this repository as a current Play Store release.
