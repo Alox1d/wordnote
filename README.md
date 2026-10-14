@@ -56,7 +56,7 @@ On 2026-10-14, debug and unsigned release builds (including R8), **101 Robolectr
 
 An isolated **Android 16 (API 36), ARM64, 16 KB** emulator exercised rich-text creation, IME focus and Back, search, completion/restoration, process-restart persistence, private-draft masking after Home, cancelled backup sign-in, and tablet rotation with an unsaved draft. The OCR libraries are pinned to 3.18.1.302; all packaged 64-bit libraries passed LOAD/RELRO alignment checks. Camera capture uses a narrowly scoped private FileProvider, and picked images are read through content URIs with EXIF preserved. The external camera also returned to its original private output after the WordNote process was reclaimed. Tests cover pending camera/picker restoration and repeated camera release.
 
-JVM tests replace external HMS authentication/Drive services. Real Huawei account/cloud transfer, biometric/PIN prompts, and API 19/20 device behavior still require validation. Existing Huawei/R8 warnings remain. This is a draft update under review, not a published store release.
+JVM tests replace external HMS authentication/Drive services. Real Huawei account/cloud transfer, biometric/PIN prompts, and API 19/20 device behavior still require validation. Existing Huawei/R8 warnings remain. This source update is not a published store release.
 
 ## Public source changes
 
