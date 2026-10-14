@@ -90,18 +90,12 @@ public class AddPictureDialog extends Dialog implements View.OnClickListener {
         if(this.clickListener == null){
             return;
         }
-        switch (v.getId()) {
-            case R.id.take_photo:
-                this.clickListener.takePicture();
-                break;
-            case R.id.select_image:
-                this.clickListener.selectImage();
-                break;
-            case R.id.extend:
-                this.clickListener.doExtend();
-                break;
-            default:
-                break;
+        if (v.getId() == R.id.take_photo) {
+            this.clickListener.takePicture();
+        } else if (v.getId() == R.id.select_image) {
+            this.clickListener.selectImage();
+        } else if (v.getId() == R.id.extend) {
+            this.clickListener.doExtend();
         }
     }
 }

@@ -3,18 +3,15 @@ package ru.alox1d.wordnote.huawei.ui.scenes.backup
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.huawei.cloud.client.exception.DriveCode
 import com.huawei.cloud.services.drive.model.File
 import com.huawei.hms.common.ApiException
 import com.huawei.hms.support.hwid.HuaweiIdAuthManager
-import kotlinx.android.synthetic.main.activity_backup.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ru.alox1d.wordnote.huawei.R
 import ru.alox1d.wordnote.huawei.data.storage.TaskDatabase
 import ru.alox1d.wordnote.huawei.device.service.drive.BackupForegroundService
@@ -85,21 +82,11 @@ class TransparentBackupActivity : AppCompatActivity() {
         val searchedDB = queryFiles(fileNameDB)
         if (searchedDB == null) {
             uploadFile(dbFile)
-            withContext(Dispatchers.Main) {
-                btn_hms_backup.isEnabled = true
-                btn_hms_restore.isEnabled = true
-                progress_backup.visibility = View.GONE
-            }
             showTips("Backup success")
             return
         }
 
         updateFile(dbFile, searchedDB)
-        withContext(Dispatchers.Main) {
-            btn_hms_backup.isEnabled = true
-            btn_hms_restore.isEnabled = true
-            progress_backup.visibility = View.GONE
-        }
         showTips("Backup success")
     }
     //Function to QueryFiles

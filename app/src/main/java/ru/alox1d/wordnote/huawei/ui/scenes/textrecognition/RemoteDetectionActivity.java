@@ -160,6 +160,7 @@ public final class RemoteDetectionActivity extends BaseTextRecognitionActivity i
             }
         }
         this.setContentView(R.layout.activity_remote_detection);
+        ru.alox1d.wordnote.huawei.helpers.SystemInsetsKt.applySystemInsets(this);
         this.initTitle();
         this.findViewById(R.id.back).setOnClickListener(this);
         this.preview = this.findViewById(R.id.still_preview);

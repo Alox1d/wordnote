@@ -1,5 +1,10 @@
 package ru.alox1d.wordnote.huawei.ui.scenes.tasks
 
+import ru.alox1d.wordnote.huawei.helpers.applySystemInsets
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.animation.LayoutTransition
 import android.app.ActivityOptions
 import android.appwidget.AppWidgetManager
@@ -78,6 +83,7 @@ class TasksActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        applySystemInsets()
 
         loadPreferences()
         setDI()
@@ -85,6 +91,10 @@ class TasksActivity : AppCompatActivity() {
         setAlarm()
 //        setDB()
         setUI()
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1003)
+        }
         onNewIntent(intent)
     }
 

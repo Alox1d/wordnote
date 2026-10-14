@@ -57,7 +57,7 @@ class EditTaskDialogFragment : TaskDialog() {
         val isHidden = args.getInt("is_hidden", 0)
 
         val task = ModelTask(title, description, descriptionHTML, date, priority, 0, timeStamp, isHidden)
-        val builder = AlertDialog.Builder(activity!!, R.style.WordNote_Task_Dialog_Alert)
+        val builder = AlertDialog.Builder(requireActivity(), R.style.WordNote_Task_Dialog_Alert)
         editor = container.findViewById<View>(R.id.editor_dialogDescription) as Editor
         val tilTitle: TextInputLayout = container.findViewById(R.id.til_DialogTaskTitle)
         val etTitle = tilTitle.editText
@@ -82,7 +82,7 @@ class EditTaskDialogFragment : TaskDialog() {
         tilDate.hint = resources.getString(R.string.task_date)
         tilTime.hint = resources.getString(R.string.task_time)
         builder.setView(container)
-        val priorityAdapter = ArrayAdapter(activity!!,
+        val priorityAdapter = ArrayAdapter(requireActivity(),
                 android.R.layout.simple_spinner_dropdown_item, resources.getStringArray(R.array.priorities))
         spPriority.adapter = priorityAdapter
         spPriority.setSelection(task.priority)

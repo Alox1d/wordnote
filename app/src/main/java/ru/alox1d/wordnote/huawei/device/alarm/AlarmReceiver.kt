@@ -1,5 +1,8 @@
 package ru.alox1d.wordnote.huawei.device.alarm
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -57,7 +60,10 @@ class AlarmReceiver : BroadcastReceiver() {
         builder.setContentIntent(pendingIntent)
         val notification = builder.build()
         notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
-        notificationManager.notify(timeStamp.toInt(), notification)
+        if (Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(context,
+                Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            notificationManager.notify(timeStamp.toInt(), notification)
+        }
     }
 
     private fun initBackup(context: Context, timeStamp: Long) {

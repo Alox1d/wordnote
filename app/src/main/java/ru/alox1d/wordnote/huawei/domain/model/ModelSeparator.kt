@@ -17,9 +17,9 @@ class ModelSeparator(var type: Int) : Item, Serializable {
     }
 
     companion object {
-        const val TYPE_OVERDUE = R.string.separator_overdue
-        const val TYPE_TODAY = R.string.separator_today
-        const val TYPE_TOMORROW = R.string.separator_tomorrow
-        const val TYPE_FUTURE = R.string.separator_future
+        val TYPE_OVERDUE = R.string.separator_overdue
+        val TYPE_TODAY = R.string.separator_today
+        val TYPE_TOMORROW = R.string.separator_tomorrow
+        val TYPE_FUTURE = R.string.separator_future
     }
 }

@@ -16,19 +16,30 @@ An Android notebook by Alexander Baranov with rich text, reminders, widgets and 
 
 `app` contains the Kotlin/Java application. `app/libs/laser-native-editor` contains the adapted editor library, with its original attribution. `dateparser-release` contains the historical DateParser AAR; the maintained parser source is at [Alox1d/dateparser](https://github.com/Alox1d/dateparser). The bundled AAR predates that repository's current fixes.
 
-## Building the historical app
+## Build and test
 
-The project retains Gradle 6.4.1, Android Gradle Plugin 4.0.0, Kotlin 1.6.10 and Android SDK 32. Use a compatible older JDK (for example JDK 11), configure `sdk.dir` in a local `local.properties`, and run:
+Use **JDK 21**, Android SDK **36** and Build Tools **36.0.0**. The checked-in wrapper uses Gradle **9.4.1** with its distribution SHA-256 pinned; Android Gradle Plugin is **9.2.1**, with built-in Kotlin **2.2.10**. Android Studio's bundled JDK 21 works. Set `sdk.dir` in an ignored local `local.properties`, then run:
 
 ```sh
-./gradlew :app:assembleDebug
+./gradlew :app:assembleDebug testDebugUnitTest lintDebug
+./gradlew :app:assembleRelease
 ```
 
-This is legacy tooling and dependency availability can require migration. A fresh APK build has not been verified for this public release; do not treat this repository as a current Play Store release.
+The minimum Android version remains **4.4 (API 19)**. AndroidX versions are selected for that minimum; upgrading every runtime dependency to its newest release would require raising it. The existing Views, SQLite schema, editor and Huawei integrations remain in place. The backup screen uses View Binding instead of removed Kotlin Android Extensions.
 
-Debug builds use the standard Android debug key. Release builds are unsigned unless you add your own signing setup locally. No personal signing key or password is provided.
+Debug builds use the standard Android debug key. Release builds are unsigned unless you configure your own signing locally. No personal signing key or password is provided.
 
-For cloud features, register your own Huawei developer project and supply `app/agconnect-services.json` locally. The AG Connect plugin is applied only when this file exists. Account, Drive, voice, OCR and other HMS features need the corresponding Huawei configuration and supported environment. No shared developer credentials are included.
+### Huawei configuration
+
+For cloud features, register your own Huawei developer project and supply `app/agconnect-services.json` locally. The AG Connect plugin is applied only when this ignored file exists. Account, Drive, voice, OCR and other HMS features need the corresponding Huawei configuration and supported environment. No shared developer credentials are included.
+
+AGConnect 1.9 still needs the legacy AGP variant API, so `android.newDsl=false` remains enabled while built-in Kotlin stays enabled. The OCR model AARs share a vendor namespace and currently need `android.uniquePackageNames=false`. These compatibility options are documented by [AGP](https://developer.android.com/build/releases/agp-9-0-0-release-notes); the runtime Huawei SDKs have not all been upgraded.
+
+### Verification status
+
+On 2026-10-14, clean debug and unsigned release builds (including R8), all 8 Robolectric tests, and Android Lint passed on JDK 21. Core note creation, editing, completion and persistence after process restart were checked on an isolated Android 15 (API 35) emulator. Lint and legacy Huawei SDK warnings remain; a passing build does not establish cloud compatibility. Tests cover SQLite note round trips, opening the main/backup screens, system/keyboard insets, notification permission requests, and list interactions after deleting an earlier note. JVM tests simulate an unavailable remote HMS service; they do not validate Huawei cloud behavior.
+
+This remains a project under review, rather than a store-ready release. API 19 device behavior, a real Huawei account/cloud configuration, OCR/voice and backups need separate end-to-end validation. Hidden-note access and backup/restore handling also need further hardening before relying on them for sensitive or irreplaceable notes.
 
 ## Public source changes
 

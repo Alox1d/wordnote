@@ -26,14 +26,14 @@ class TaskRepository(
             null
         )
         if (cursor.moveToFirst()) {
-            val title = cursor.getString(cursor.getColumnIndex(TASK_TITLE_COLUMN))
-            val description = cursor.getString(cursor.getColumnIndex(TASK_DESCRIPTION_COLUMN))
+            val title = cursor.getString(cursor.getColumnIndexOrThrow(TASK_TITLE_COLUMN))
+            val description = cursor.getString(cursor.getColumnIndexOrThrow(TASK_DESCRIPTION_COLUMN))
             val descriptionHTML =
-                cursor.getString(cursor.getColumnIndex(TASK_DESCRIPTION_HTML_COLUMN))
-            val date = cursor.getLong(cursor.getColumnIndex(TASK_DATE_COLUMN))
-            val priority = cursor.getInt(cursor.getColumnIndex(TASK_PRIORITY_COLUMN))
-            val status = cursor.getInt(cursor.getColumnIndex(TASK_STATUS_COLUMN))
-            val isHidden = cursor.getInt(cursor.getColumnIndex(TASK_IS_HIDDEN_COLUMN))
+                cursor.getString(cursor.getColumnIndexOrThrow(TASK_DESCRIPTION_HTML_COLUMN))
+            val date = cursor.getLong(cursor.getColumnIndexOrThrow(TASK_DATE_COLUMN))
+            val priority = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_PRIORITY_COLUMN))
+            val status = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_STATUS_COLUMN))
+            val isHidden = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_IS_HIDDEN_COLUMN))
             modelTask = ModelTask(
                 title,
                 description,
@@ -66,15 +66,15 @@ class TaskRepository(
         )
         if (cursor.moveToFirst()) {
             do {
-                val title = cursor.getString(cursor.getColumnIndex(TASK_TITLE_COLUMN))
-                val description = cursor.getString(cursor.getColumnIndex(TASK_DESCRIPTION_COLUMN))
+                val title = cursor.getString(cursor.getColumnIndexOrThrow(TASK_TITLE_COLUMN))
+                val description = cursor.getString(cursor.getColumnIndexOrThrow(TASK_DESCRIPTION_COLUMN))
                 val descriptionHTML =
-                    cursor.getString(cursor.getColumnIndex(TASK_DESCRIPTION_HTML_COLUMN))
-                val date = cursor.getLong(cursor.getColumnIndex(TASK_DATE_COLUMN))
-                val priority = cursor.getInt(cursor.getColumnIndex(TASK_PRIORITY_COLUMN))
-                val status = cursor.getInt(cursor.getColumnIndex(TASK_STATUS_COLUMN))
-                val timeStamp = cursor.getLong(cursor.getColumnIndex(TASK_TIME_STAMP_COLUMN))
-                val isHidden = cursor.getInt(cursor.getColumnIndex(TASK_IS_HIDDEN_COLUMN))
+                    cursor.getString(cursor.getColumnIndexOrThrow(TASK_DESCRIPTION_HTML_COLUMN))
+                val date = cursor.getLong(cursor.getColumnIndexOrThrow(TASK_DATE_COLUMN))
+                val priority = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_PRIORITY_COLUMN))
+                val status = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_STATUS_COLUMN))
+                val timeStamp = cursor.getLong(cursor.getColumnIndexOrThrow(TASK_TIME_STAMP_COLUMN))
+                val isHidden = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_IS_HIDDEN_COLUMN))
                 val modelTask = ModelTask(
                     title,
                     description,

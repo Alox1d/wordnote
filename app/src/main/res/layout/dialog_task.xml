@@ -93,7 +93,7 @@
                         android:paddingEnd="12dp"
                         android:background="?attr/selectableItemBackground"
                         app:srcCompat="@drawable/ic_baseline_keyboard_voice_24"
-                        android:tint="?colorPrimary" />
+                        app:tint="?colorPrimary" />
                 </LinearLayout>
 
             </RelativeLayout>

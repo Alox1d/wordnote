@@ -1,28 +1,34 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 // Supply your own Huawei project configuration for cloud features.
 if (file('agconnect-services.json').exists()) {
     apply plugin: 'com.huawei.agconnect'
 }
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.android.legacy-kapt'
 
 android {
-    compileSdkVersion 32
+    namespace 'ru.alox1d.wordnote.huawei'
+    compileSdk 36
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
 
     defaultConfig {
         applicationId "ru.alox1d.wordnote.huawei"
         minSdkVersion 19
-        targetSdkVersion 32
+        targetSdkVersion 36
         versionCode 10001201
         versionName "1.2.1"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
     }
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             debuggable true
@@ -30,37 +36,34 @@ android {
 
     }
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
-}
-androidExtensions {
-    experimental = true
 }
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.activity:activity-ktx:1.9.3'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.5.0'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
 
-    implementation "androidx.core:core-ktx:1.7.0"
+    implementation "androidx.core:core-ktx:1.13.1"
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'com.github.QuadFlask:colorpicker:0.0.15'
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation project(path: ':laser-native-editor')
-    implementation project(":dateparser-release")
+    implementation project(':dateparser-release')
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.16.1'
 
     implementation 'com.huawei.hms:ads-lite:13.4.54.300'
     implementation 'com.huawei.hms:drive:5.0.0.302'

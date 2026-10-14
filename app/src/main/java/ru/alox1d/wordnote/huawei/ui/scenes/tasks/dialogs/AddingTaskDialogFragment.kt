@@ -83,7 +83,7 @@ class AddingTaskDialogFragment() : TaskDialog() {
         builder.setView(container)
         val task = ModelTask()
         val priorityAdapter = ArrayAdapter(
-            activity!!,
+            requireActivity(),
             android.R.layout.simple_spinner_dropdown_item,  /*ModelTask.PRIORITY_LEVELS*/
             resources.getStringArray(R.array.priorities)
         )

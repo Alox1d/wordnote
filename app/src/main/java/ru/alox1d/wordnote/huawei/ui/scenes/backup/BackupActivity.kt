@@ -1,5 +1,6 @@
 package ru.alox1d.wordnote.huawei.ui.scenes.backup
 
+import ru.alox1d.wordnote.huawei.helpers.applySystemInsets
 import android.Manifest
 import android.content.Intent
 import android.os.Build
@@ -16,7 +17,7 @@ import com.huawei.cloud.client.exception.DriveCode
 import com.huawei.cloud.services.drive.model.File
 import com.huawei.hms.common.ApiException
 import com.huawei.hms.support.hwid.HuaweiIdAuthManager
-import kotlinx.android.synthetic.main.activity_backup.*
+import ru.alox1d.wordnote.huawei.databinding.ActivityBackupBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -35,6 +36,7 @@ import java.util.*
 
 
 class BackupActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityBackupBinding
 
     interface BackupListener {
         fun onRestore(currentTasks: ArrayList<Item>, doneTasks: ArrayList<Item>)
@@ -89,7 +91,9 @@ class BackupActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_backup)
+        binding = ActivityBackupBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        applySystemInsets()
 
         taskDatabase = TaskDatabase.getInstance(this)
         // 1. Open Activity scope as child of Application scope
@@ -114,13 +118,13 @@ class BackupActivity : AppCompatActivity() {
     private fun setUI() {
         val backupAdapter = ArrayAdapter(this,
                 android.R.layout.simple_spinner_dropdown_item, resources.getStringArray(R.array.intervals))
-        spinner_backup.adapter = backupAdapter
-//        spinner_backup.setSelected(false);  // must
-        spinner_backup.setSelection(preferenceStorage.getLong(PreferenceStorage.BACKUP_INTERVAL).toInt(), false)
-//        spinner_backup.setSelection(0,false)
-//        spinner_backup.setSelection(Adapter.NO_SELECTION, true); //Add this line before setting listener
+        binding.spinnerBackup.adapter = backupAdapter
+//        binding.spinnerBackup.setSelected(false);  // must
+        binding.spinnerBackup.setSelection(preferenceStorage.getLong(PreferenceStorage.BACKUP_INTERVAL).toInt(), false)
+//        binding.spinnerBackup.setSelection(0,false)
+//        binding.spinnerBackup.setSelection(Adapter.NO_SELECTION, true); //Add this line before setting listener
         var inhibit_spinner = true;
-        spinner_backup.setOnItemSelectedListener(object : OnItemSelectedListener {
+        binding.spinnerBackup.setOnItemSelectedListener(object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
                 if (inhibit_spinner) {
                     inhibit_spinner = false;
@@ -159,7 +163,7 @@ class BackupActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         })
 
-        btn_hms_backup.setOnClickListener {
+        binding.btnHmsBackup.setOnClickListener {
             setLoginProcessUI()
             GlobalScope.launch(Dispatchers.IO) {
                 upload = true
@@ -167,7 +171,7 @@ class BackupActivity : AppCompatActivity() {
             }
         }
 
-        btn_hms_restore.setOnClickListener {
+        binding.btnHmsRestore.setOnClickListener {
             setLoginProcessUI()
             GlobalScope.launch(Dispatchers.IO) {
                 upload = false
@@ -180,9 +184,9 @@ class BackupActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(PERMISSIONS_STORAGE, 1);
         }
-        btn_hms_backup.isEnabled = false
-        btn_hms_restore.isEnabled = false
-        progress_backup.visibility = View.VISIBLE
+        binding.btnHmsBackup.isEnabled = false
+        binding.btnHmsRestore.isEnabled = false
+        binding.progressBackup.visibility = View.VISIBLE
     }
 
     private suspend fun uploadData() {
@@ -191,18 +195,18 @@ class BackupActivity : AppCompatActivity() {
         if (searchedDB == null) {
             uploadFile(dbFile)
             withContext(Dispatchers.Main) {
-                btn_hms_backup.isEnabled = true
-                btn_hms_restore.isEnabled = true
-                progress_backup.visibility = View.GONE
+                binding.btnHmsBackup.isEnabled = true
+                binding.btnHmsRestore.isEnabled = true
+                binding.progressBackup.visibility = View.GONE
             }
             showTips(getString(R.string.backup_success))
             return
         }
         updateFile(dbFile, searchedDB)
         withContext(Dispatchers.Main) {
-            btn_hms_backup.isEnabled = true
-            btn_hms_restore.isEnabled = true
-            progress_backup.visibility = View.GONE
+            binding.btnHmsBackup.isEnabled = true
+            binding.btnHmsRestore.isEnabled = true
+            binding.progressBackup.visibility = View.GONE
         }
         showTips(getString(R.string.backup_success))
     }
@@ -212,9 +216,9 @@ class BackupActivity : AppCompatActivity() {
         val searchedDB = queryFiles(fileNameDB)
         if (searchedDB == null) {
             withContext(Dispatchers.Main) {
-                btn_hms_restore.isEnabled = true
-                btn_hms_backup.isEnabled = true
-                progress_backup.visibility = View.GONE
+                binding.btnHmsRestore.isEnabled = true
+                binding.btnHmsBackup.isEnabled = true
+                binding.progressBackup.visibility = View.GONE
             }
             showTips(getString(R.string.cloud_empty))
             setResult(REQUEST_CODE_ERROR, intent)
@@ -225,9 +229,9 @@ class BackupActivity : AppCompatActivity() {
 
         taskDatabase.importDB(downloadedDB)
         withContext(Dispatchers.Main) {
-            btn_hms_restore.isEnabled = true
-            btn_hms_backup.isEnabled = true
-            progress_backup.visibility = View.GONE
+            binding.btnHmsRestore.isEnabled = true
+            binding.btnHmsBackup.isEnabled = true
+            binding.progressBackup.visibility = View.GONE
         }
         showTips(getString(R.string.restore_success))
         restartApp()

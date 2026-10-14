@@ -1,5 +1,7 @@
 package ru.alox1d.wordnote.huawei.ui.scenes.textrecognition
 
+import ru.alox1d.wordnote.huawei.helpers.applySystemInsets
+import androidx.activity.OnBackPressedCallback
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
@@ -97,6 +99,17 @@ class TextRecognitionActivity : BaseTextRecognitionActivity(), ActivityCompat.On
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.setContentView(R.layout.activity_text_recognition)
+        applySystemInsets()
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (zoomImageLayout.visibility == View.VISIBLE) {
+                    returnToTakePicture()
+                } else {
+                    releaseLensEngine()
+                    finish()
+                }
+            }
+        })
         setApiKey()
         if (savedInstanceState != null) {
             facing = savedInstanceState.getInt(Constant.CAMERA_FACING)
@@ -211,15 +224,6 @@ class TextRecognitionActivity : BaseTextRecognitionActivity(), ActivityCompat.On
             mCamera?.setPreviewDisplay(preview!!.surfaceHolder)
         } catch (e: IOException) {
             Log.d(TAG, "initViews IOException")
-        }
-    }
-
-    override fun onBackPressed() {
-        if (zoomImageLayout.visibility == View.VISIBLE) {
-            returnToTakePicture()
-        } else {
-            super.onBackPressed()
-            releaseLensEngine()
         }
     }
 

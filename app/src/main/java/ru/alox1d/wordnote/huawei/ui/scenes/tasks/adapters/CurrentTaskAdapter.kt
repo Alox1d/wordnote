@@ -56,9 +56,7 @@ class CurrentTaskAdapter : TaskAdapter() {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val adapterPosition = holder.adapterPosition
-        val layoutPosition = holder.layoutPosition
-        val item = items[adapterPosition]
+        val item = items[position]
         val resources = holder.itemView.resources
         if (item.isTask) {
             holder.itemView.isEnabled = true
@@ -88,10 +86,15 @@ class CurrentTaskAdapter : TaskAdapter() {
             taskViewHolder.priority.setImageResource(R.drawable.ic_checkbox_blank_circle_white_48dp)
             taskViewHolder.cv.setOnLongClickListener {
                 val handler = Handler()
-                handler.postDelayed({ taskAdapterListener!!.onLongClick(position, taskViewHolder.description) }, 1000)
+                handler.postDelayed({
+                    val currentPosition = items.indexOf(task)
+                    if (currentPosition != RecyclerView.NO_POSITION) {
+                        taskAdapterListener?.onLongClick(currentPosition, taskViewHolder.description)
+                    }
+                }, 1000)
                 true
             }
-            initExpand(position, task, taskViewHolder)
+            initExpand(task, taskViewHolder)
             taskViewHolder.priority.setOnClickListener {
                 taskViewHolder.priority.isEnabled = false
                 task.status = ModelTask.STATUS_DONE
@@ -114,7 +117,7 @@ class CurrentTaskAdapter : TaskAdapter() {
                                 override fun onAnimationEnd(animation: Animator) {
                                     itemView.visibility = View.GONE
                                     taskAdapterListener!!.onMove(task)
-                                    removeItem(position)
+                                    removeItem(items.indexOf(task))
                                 }
 
                                 override fun onAnimationCancel(animation: Animator) {}
@@ -139,7 +142,7 @@ class CurrentTaskAdapter : TaskAdapter() {
             separatorViewHolder.type.text = resources.getString(separator.type)
         }
         if (!item.hasAnimated()) {
-            fromRightToLeft(holder.itemView, position)
+            fromRightToLeft(holder.itemView, holder.bindingAdapterPosition)
             item.setAnimated(true)
         }
     }

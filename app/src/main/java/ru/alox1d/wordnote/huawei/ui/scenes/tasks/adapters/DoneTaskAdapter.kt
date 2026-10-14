@@ -56,12 +56,17 @@ class DoneTaskAdapter : TaskAdapter() {
             taskViewHolder.priority.setImageResource(R.drawable.ic_check_circle_white_48dp)
             itemView.setOnLongClickListener {
                 val handler = Handler()
-                handler.postDelayed({ taskAdapterListener!!.onLongClick(position, taskViewHolder.description) }, 1000)
+                handler.postDelayed({
+                    val currentPosition = items.indexOf(task)
+                    if (currentPosition != RecyclerView.NO_POSITION) {
+                        taskAdapterListener?.onLongClick(currentPosition, taskViewHolder.description)
+                    }
+                }, 1000)
                 true
             }
 
             // setUpExpand
-            initExpand(position, task, taskViewHolder)
+            initExpand(task, taskViewHolder)
             taskViewHolder.priority.setOnClickListener {
                 taskViewHolder.priority.isEnabled = false
                 task.status = ModelTask.STATUS_CURRENT
@@ -84,7 +89,7 @@ class DoneTaskAdapter : TaskAdapter() {
                                 override fun onAnimationEnd(animation: Animator) {
                                     itemView.visibility = View.GONE
                                     taskAdapterListener!!.onMove(task)
-                                    removeItem(position)
+                                    removeItem(items.indexOf(task))
                                 }
 
                                 override fun onAnimationCancel(animation: Animator) {}
@@ -103,7 +108,7 @@ class DoneTaskAdapter : TaskAdapter() {
             }
             setHiddenTasks(task, taskViewHolder)
             if (!task.hasAnimated()) {
-                fromRightToLeft(holder.itemView, position)
+                fromRightToLeft(holder.itemView, holder.bindingAdapterPosition)
                 task.setAnimated(true)
             }
         }

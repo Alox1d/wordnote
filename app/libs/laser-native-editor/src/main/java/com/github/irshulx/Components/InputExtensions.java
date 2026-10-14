@@ -808,8 +808,9 @@ public class InputExtensions extends EditorComponent {
                 }
             }
         }
-        if (item.textSettings != null)
-        styles.put(TEXT_COLOR, "color:" + item.textSettings.getTextColor());
+        if (item.textSettings != null) {
+            styles.put(TEXT_COLOR, "color:" + item.textSettings.getTextColor());
+        }
 
         if (item.type == EditorType.OL_LI || item.type == EditorType.UL_LI) {
             tmpl = tmpl.replace("{{$tag}}", "span");

@@ -25,7 +25,7 @@ class HuaweiFIDOService(val context: AppCompatActivity) : IFIDOService {
         val callback: BioAuthnCallback = object : BioAuthnCallback() {
             override fun onAuthError(errMsgId: Int, errString: CharSequence) {
                 if (errMsgId != 10)
-                showResult(context.getString(R.string.auth_failed) + errMsgId + ", \n"+context.getString(R.string.error_msg) + errString)
+                    showResult(context.getString(R.string.auth_failed) + errMsgId + ", \n"+context.getString(R.string.error_msg) + errString)
             }
 
             override fun onAuthSucceeded(result: BioAuthnResult) {

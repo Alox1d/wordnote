@@ -108,6 +108,10 @@ class BackupForegroundService : Service() {
         return START_NOT_STICKY
     }
 
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        stopSelf()
+    }
+
     override fun onDestroy() {
         // Unregistered or disconnect what you need to
         // For example: mGoogleApiClient.disconnect();

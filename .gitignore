@@ -70,3 +70,6 @@ obj/
 .idea/
 **/build/
 **/.gradle/
+
+# Kotlin compiler local session state
+.kotlin/
