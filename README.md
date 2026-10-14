@@ -46,15 +46,17 @@ System Android auto-backup is disabled. Android 12+ exclusion rules also block e
 
 ### Hidden notes and attachments
 
-Both tabs and search require successful device authentication before showing private notes. Leaving the activity locks the session; private editor windows are hidden until authentication succeeds again, while their unsaved draft stays in memory. Sensitive windows block screenshots. Reminder notifications use generic text for private notes.
+Both tabs and search require successful device authentication before showing private notes. Leaving the activity locks the session; private editor windows are hidden until authentication succeeds again, while their unsaved draft survives activity recreation. Sensitive windows block screenshots. Reminder notifications use generic text for private notes.
 
 New note images are stored under the app-private attachments directory and are included in the portable backup. Older releases created copies in the public gallery; those existing copies are left intact. A legacy database-only backup can restore images only if all referenced legacy images remain accessible locally. Missing images, unsupported editor data, corrupt checksums and oversized backups are rejected before replacing notes. Hidden notes use app access controls; the SQLite database and Huawei archive do not have a separate password-encryption layer.
 
 ### Verification status
 
-On 2026-10-14, debug and unsigned release builds (including R8), **83 Robolectric tests**, and Android Lint completed successfully on JDK 21. Lint has no errors; existing warnings and vendor Huawei/R8 warnings remain. Tests cover both tabs/search/authentication failure and cancellation, private editor lifecycle and restored saves, recycled row privacy, portable image restoration into an empty installation, malformed data/paths, transaction rollback and cancelled downloads, cloud failure handling, and scheduling without postponing the next run.
+On 2026-10-14, debug and unsigned release builds (including R8), **101 Robolectric tests**, and Android Lint completed successfully on JDK 21. Lint has no errors; existing warnings and vendor Huawei/R8 warnings remain. Tests cover both tabs/search/authentication failure and cancellation, private editor lifecycle and restored saves, recycled row privacy, portable image restoration into an empty installation, malformed data/paths, transaction rollback and cancelled downloads, cloud failure handling, and scheduling without postponing the next run.
 
-An isolated Android 15 (API 35) emulator confirmed private-draft masking after Home/return and backup controls recovering after cancelled Huawei sign-in. Earlier modernization checks also exercised core note creation, editing, completion and process-restart persistence. JVM tests replace external HMS authentication/Drive services and do not validate a real Huawei account, cloud transfer or device biometric/PIN prompt. API 19/20 device behavior, API 36 runtime behavior, and real HMS OCR/voice/cloud still require device validation. This is a draft update under review, not a published store release.
+An isolated **Android 16 (API 36), ARM64, 16 KB** emulator exercised rich-text creation, IME focus and Back, search, completion/restoration, process-restart persistence, private-draft masking after Home, cancelled backup sign-in, and tablet rotation with an unsaved draft. The OCR libraries are pinned to 3.18.1.302; all packaged 64-bit libraries passed LOAD/RELRO alignment checks. Camera capture uses a narrowly scoped private FileProvider, and picked images are read through content URIs with EXIF preserved. The external camera also returned to its original private output after the WordNote process was reclaimed. Tests cover pending camera/picker restoration and repeated camera release.
+
+JVM tests replace external HMS authentication/Drive services. Real Huawei account/cloud transfer, biometric/PIN prompts, and API 19/20 device behavior still require validation. Existing Huawei/R8 warnings remain. This is a draft update under review, not a published store release.
 
 ## Public source changes
 

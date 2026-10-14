@@ -162,11 +162,11 @@ class AddingTaskDialogFragment() : TaskDialog() {
             onTaskAddingCancel()
             dialog.cancel()
         }
-        if (mode == TaskModes.VOICE_RECOG.ordinal) {
+        if (savedInstanceState == null && mode == TaskModes.VOICE_RECOG.ordinal) {
             isTitleVoiceRecognition = true
             recognizeVoice()
         }
-        if (mode == TaskModes.IMAGE_RECOG.ordinal) {
+        if (savedInstanceState == null && mode == TaskModes.IMAGE_RECOG.ordinal) {
             isDescriptionImageRecognition = true
             recognizeImage()
         }

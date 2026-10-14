@@ -27,7 +27,6 @@ import androidx.viewpager.widget.ViewPager
 import com.example.toothpick.annotation.ApplicationScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
-import com.huawei.hms.mlplugin.asr.MLAsrCaptureConstants
 import ru.alox1d.wordnote.huawei.R
 import ru.alox1d.wordnote.huawei.WordNoteApp
 import ru.alox1d.wordnote.huawei.WordNoteApp.Companion.activityPaused
@@ -71,7 +70,6 @@ class TasksActivity : AppCompatActivity() {
     var searchView: SearchView? = null
 //    private var taskDatabase: TaskDatabase? = null
     var addingTaskDialogFragment: AddingTaskDialogFragment? = null
-    private var mASRListener: ((String?) -> Unit)? = null
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     private val mFIDOService: IFIDOService by inject()
@@ -89,10 +87,6 @@ class TasksActivity : AppCompatActivity() {
         override fun onTaskRestore(task: ModelTask) { currentTaskFragment.addTask(task, false) }
     }
 
-
-    fun setASRListener(mASRListener: (String?) -> Unit) {
-        this.mASRListener = mASRListener
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         WordNoteApp.isHiddenNotesUnlocked = false
@@ -409,38 +403,6 @@ class TasksActivity : AppCompatActivity() {
             fragment.onActivityResult(requestCode, resultCode, data)
             when (resultCode) {
                 BackupActivity.REQUEST_CODE_OK -> {
-                }
-            }
-        }
-        if (requestCode == 100) {
-            when (resultCode) {
-                MLAsrCaptureConstants.ASR_SUCCESS -> if (data != null) {
-                    val bundle = data.extras
-                    if (bundle != null && bundle.containsKey(MLAsrCaptureConstants.ASR_RESULT)) {
-                        val text = bundle.getString(MLAsrCaptureConstants.ASR_RESULT).toString()
-                        mASRListener!!.invoke(text)
-                    }
-                }
-                MLAsrCaptureConstants.ASR_FAILURE -> if (data != null) {
-                    val bundle = data.extras
-                    if (bundle != null && bundle.containsKey(MLAsrCaptureConstants.ASR_ERROR_CODE)) {
-                        val errorCode = bundle.getInt(MLAsrCaptureConstants.ASR_ERROR_CODE)
-                        Toast.makeText(
-                            this,
-                            getString(R.string.error_code) + errorCode,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                    if (bundle != null && bundle.containsKey(MLAsrCaptureConstants.ASR_ERROR_MESSAGE)) {
-                        val errorMsg = bundle.getString(MLAsrCaptureConstants.ASR_ERROR_MESSAGE)
-                        Toast.makeText(
-                            this,
-                            getString(R.string.error_code) + errorMsg,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                } else {
-                    Toast.makeText(this, R.string.failed_to_get_data, Toast.LENGTH_LONG).show()
                 }
             }
         }

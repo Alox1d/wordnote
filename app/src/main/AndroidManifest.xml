@@ -28,6 +28,16 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.WordNote">
 
+        <provider
+            android:name=".helpers.CameraFileProvider"
+            android:authorities="${applicationId}.camera"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/camera_file_paths" />
+        </provider>
+
         <receiver
             android:name=".ui.widgets.ButtonsWidget"
             android:exported="true">

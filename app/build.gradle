@@ -76,12 +76,12 @@ dependencies {
     implementation 'com.huawei.hms:ml-computer-voice-asr-plugin:3.4.0.302'
 
     // Import the base SDK.
-    implementation 'com.huawei.hms:ml-computer-vision-ocr:3.4.0.301'
+    implementation 'com.huawei.hms:ml-computer-vision-ocr:3.18.1.302'
     // Import the Latin-based language model package.
-    implementation 'com.huawei.hms:ml-computer-vision-ocr-latin-model:3.4.0.301'
+    implementation 'com.huawei.hms:ml-computer-vision-ocr-latin-model:3.18.1.302'
     // Import the Chinese and English model package.
-    implementation 'com.huawei.hms:ml-computer-vision-ocr-jk-model:3.4.0.301'
-    implementation 'com.huawei.hms:ml-computer-vision-ocr-cn-model:3.4.0.301'
+    implementation 'com.huawei.hms:ml-computer-vision-ocr-jk-model:3.18.1.302'
+    implementation 'com.huawei.hms:ml-computer-vision-ocr-cn-model:3.18.1.302'
     //FIDO
     implementation 'com.huawei.hms:fido-bioauthn-androidx:5.0.2.303'
     implementation 'com.huawei.agconnect:agconnect-core:1.5.0.300'

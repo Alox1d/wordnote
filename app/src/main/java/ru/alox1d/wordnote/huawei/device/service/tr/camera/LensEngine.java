@@ -13,7 +13,6 @@ import androidx.annotation.RequiresPermission;
 import com.huawei.hms.common.size.Size;
 
 import java.io.IOException;
-import java.lang.Thread.State;
 import java.nio.ByteBuffer;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -51,8 +50,9 @@ public class LensEngine {
      * Stop the camera and release the resources of the camera and analyzer.
      */
     public void release() {
+        // The worker may need transactorLock to finish its last frame. Join it first.
+        this.stop();
         synchronized (this.transactorLock) {
-            this.stop();
             this.transactingRunnable.release();
             if (this.frameTransactor != null) {
                 this.frameTransactor.stop();
@@ -217,10 +217,10 @@ public class LensEngine {
         /**
          * Frees the transactor and can safely perform this operation only after the associated thread has completed.
          */
-        @SuppressLint("Assert")
         void release() {
             synchronized (this.lock) {
-                assert (LensEngine.this.transactingThread.getState() == State.TERMINATED);
+                // stop() has joined and cleared the worker, including repeated releases.
+                this.pendingFrameData = null;
             }
         }
 

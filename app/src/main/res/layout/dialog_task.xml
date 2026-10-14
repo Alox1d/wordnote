@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<RelativeLayout
+<LinearLayout
 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -12,12 +12,8 @@
     <ScrollView
         android:id="@+id/scrollView3"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/cv_horScroll_editor_container"
-        android:layout_alignParentTop="true"
-
-        app:layout_constraintBottom_toTopOf="@+id/cv_horScroll_editor_container"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -203,9 +199,7 @@
         android:id="@+id/cv_horScroll_editor_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="?colorSurface"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:background="?colorSurface">
 
 
         <HorizontalScrollView
@@ -227,6 +221,6 @@
 
         </HorizontalScrollView>
     </FrameLayout>
-</RelativeLayout>
+</LinearLayout>
 
 
