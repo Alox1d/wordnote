@@ -7,6 +7,8 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.github.irshulx.Components.CustomEditText;
 import com.github.irshulx.models.EditorContent;
 import com.github.irshulx.models.EditorTextStyle;
@@ -168,6 +170,10 @@ public class Editor extends EditorCore {
 
     public void insertLink() {
         getInputExtensions().insertLink();
+    }
+
+    public AlertDialog createLinkDialog() {
+        return getInputExtensions().createLinkDialog();
     }
 
     public void insertLink(String link) {

@@ -238,6 +238,10 @@ public class InputExtensions extends EditorComponent {
     }
 
     public CustomEditText getNewEditTextInst(final String hint, CharSequence text) {
+        return getNewEditTextInst(hint, text, true);
+    }
+
+    private CustomEditText getNewEditTextInst(final String hint, CharSequence text, boolean parseHtml) {
         final CustomEditText editText = new CustomEditText(new ContextThemeWrapper(this.editorCore.getContext(), R.style.WysiwygEditText));
         addEditableStyling(editText);
         editText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -245,7 +249,11 @@ public class InputExtensions extends EditorComponent {
             editText.setHint(hint);
         }
         if (text != null) {
-            setText(editText, text);
+            if (parseHtml) {
+                setText(editText, text);
+            } else {
+                editText.setText(text);
+            }
         }
 
         /**
@@ -285,50 +293,25 @@ public class InputExtensions extends EditorComponent {
             @Override
             public void afterTextChanged(Editable s) {
 
-                String text = Html.toHtml(editText.getText());
                 Object tag = editText.getTag(R.id.control_tag);
                 if (s.length() == 0 && tag != null)
                     editText.setHint(tag.toString());
-                if (s.length() > 0) {
-                    /*
-                     * if user had pressed enter, replace it with br
-                     */
-                    for (int i = 0; i < s.length(); i++) {
-                        if (s.charAt(i) == '\n') {
-                            CharSequence subChars = s.subSequence(0, i);
-                            SpannableStringBuilder ssb = new SpannableStringBuilder(subChars);
-                            text = Html.toHtml(ssb);
-                            if (text.length() > 0)
-                                setText(editText, text);
-
-
-                            if (i + 1 == s.length()) {
-                                s.clear();
-                            }
-
-                            int index = editorCore.getParentView().indexOfChild(editText);
-                            /* if the index was 0, set the placeholder to empty, behaviour happens when the user just press enter
-                             */
-                            if (index == 0) {
-                                editText.setHint(null);
-                                editText.setTag(R.id.control_tag, hint);
-                            }
-                            int position = index + 1;
-                            CharSequence newText = null;
-                            SpannableStringBuilder editable = new SpannableStringBuilder();
-                            int lastIndex = s.length();
-                            int nextIndex = i + 1;
-                            if (nextIndex < lastIndex) {
-                                newText = s.subSequence(nextIndex, lastIndex);
-                                for (int j = 0; j < newText.length(); j++) {
-                                    editable.append(newText.charAt(j));
-                                    if (newText.charAt(j) == '\n') {
-                                        editable.append('\n');
-                                    }
-                                }
-                            }
-                            insertEditText(position, hint, editable);
-                            break;
+                int newline = TextUtils.indexOf(s, '\n');
+                if (newline >= 0) {
+                    // Keep a spanned snapshot before replacing the first paragraph.
+                    SpannableStringBuilder pasted = new SpannableStringBuilder(s);
+                    editText.setText(pasted.subSequence(0, newline));
+                    int index = editorCore.getParentView().indexOfChild(editText);
+                    if (index == 0) {
+                        editText.setHint(null);
+                        editText.setTag(R.id.control_tag, hint);
+                    }
+                    int position = index + 1;
+                    int start = newline + 1;
+                    for (int end = start; end <= pasted.length(); end++) {
+                        if (end == pasted.length() || pasted.charAt(end) == '\n') {
+                            insertEditText(position++, hint, pasted.subSequence(start, end), false);
+                            start = end + 1;
                         }
                     }
                 }
@@ -362,13 +345,17 @@ public class InputExtensions extends EditorComponent {
 
 
     public TextView insertEditText(int position, String hint, CharSequence text) {
+        return insertEditText(position, hint, text, true);
+    }
+
+    private TextView insertEditText(int position, String hint, CharSequence text, boolean parseHtml) {
         String nextHint = isLastText(position) ? null : editorCore.getPlaceHolder();
         if (editorCore.getRenderType() == RenderType.Editor) {
 
             /**
              * when user press enter from first line without keyin anything, need to remove the placeholder from that line 0...
              */
-            if (position == 1) {
+            if (position == 1 && parseHtml && !editorCore.isSerialRenderInProgress()) {
                 View view = editorCore.getParentView().getChildAt(0);
                 EditorType type = editorCore.getControlType(view);
                 if (type == EditorType.INPUT) {
@@ -381,7 +368,7 @@ public class InputExtensions extends EditorComponent {
                 }
             }
 
-            final CustomEditText view = getNewEditTextInst(nextHint, text);
+            final CustomEditText view = getNewEditTextInst(nextHint, text, parseHtml);
             editorCore.getParentView().addView(view, position);
             editorCore.setActiveView(view);
             final android.os.Handler handler = new android.os.Handler();
@@ -524,6 +511,14 @@ public class InputExtensions extends EditorComponent {
                     boldifyText(tag, editText, containsHeadertextStyle ? HEADING : CONTENT);
                 } else if (style == EditorTextStyle.ITALIC) {
                     italicizeText(tag, editText, containsHeadertextStyle ? HEADING : CONTENT);
+                } else if (style == EditorTextStyle.BOLDITALIC) {
+                    boolean combined = editorCore.containsStyle(tag.editorTextStyles, EditorTextStyle.BOLDITALIC);
+                    tag = editorCore.updateTagStyle(tag, EditorTextStyle.BOLD, Op.Delete);
+                    tag = editorCore.updateTagStyle(tag, EditorTextStyle.ITALIC, Op.Delete);
+                    tag = editorCore.updateTagStyle(tag, EditorTextStyle.BOLDITALIC, combined ? Op.Delete : Op.Insert);
+                    editText.setTypeface(getTypeface(containsHeadertextStyle ? HEADING : CONTENT,
+                            combined ? Typeface.NORMAL : Typeface.BOLD_ITALIC));
+                    editText.setTag(tag);
                 }
                 return;
             }
@@ -567,6 +562,10 @@ public class InputExtensions extends EditorComponent {
 
 
     public void insertLink() {
+        createLinkDialog().show();
+    }
+
+    public AlertDialog createLinkDialog() {
         final AlertDialog.Builder inputAlert = new AlertDialog.Builder(this.editorCore.getContext());
         inputAlert.setTitle("Add a Link");
         final EditText userInput = new EditText(this.editorCore.getContext());
@@ -587,8 +586,7 @@ public class InputExtensions extends EditorComponent {
                 dialog.dismiss();
             }
         });
-        AlertDialog alertDialog = inputAlert.create();
-        alertDialog.show();
+        return inputAlert.create();
     }
 
     public void appendText(Editable text) {
