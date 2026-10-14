@@ -27,12 +27,32 @@ class ModernAndroidSmokeTest {
     @Before fun noRemoteHuaweiServiceInJvm() {
         // Robolectric cannot bind a real HMS process; device smoke checks cover that environment.
         shadowOf(RuntimeEnvironment.getApplication()).setThrowInBindService(SecurityException("No remote HMS service in JVM tests"))
+        // Each Robolectric method has a fresh Application; clear the process singleton from the preceding method.
+        val context = RuntimeEnvironment.getApplication()
+        TaskDatabase.getInstance(context).close()
+        context.deleteDatabase(TaskDatabase.DATABASE_NAME)
     }
 
     @Test fun launcherOpensWithoutHuaweiAccount() {
         Robolectric.buildActivity(TasksActivity::class.java).setup().use { controller ->
             assertNotNull(controller.get().findViewById<android.view.View>(R.id.pager))
             assertNotNull(controller.get().findViewById<android.view.View>(R.id.fab))
+        }
+    }
+
+    @Test fun addingButtonStaysReachableWhenNoAdIsConfigured() {
+        Robolectric.buildActivity(TasksActivity::class.java).setup().use { controller ->
+            val decor = controller.get().window.decorView
+            decor.measure(android.view.View.MeasureSpec.makeMeasureSpec(1000, android.view.View.MeasureSpec.EXACTLY),
+                android.view.View.MeasureSpec.makeMeasureSpec(1800, android.view.View.MeasureSpec.EXACTLY))
+            decor.layout(0, 0, 1000, 1800)
+            shadowOf(android.os.Looper.getMainLooper()).idle()
+            val root = controller.get().findViewById<android.view.View>(R.id.content_frame)
+            val fab = controller.get().findViewById<android.view.View>(R.id.fab)
+            val location = IntArray(2)
+            fab.getLocationOnScreen(location)
+            assertTrue("Adding a note must remain reachable below the toolbar", location[1] > root.height / 2)
+            assertTrue("Adding control must stay inside visible content", location[1] + fab.height <= decor.height)
         }
     }
 

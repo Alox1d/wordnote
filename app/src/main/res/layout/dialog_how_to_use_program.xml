@@ -47,7 +47,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="@dimen/medium_margin"
                 android:autoLink="web"
-                android:text="vk.com/wordnote"
+                android:text="https://github.com/Alox1d/wordnote"
                 android:layout_marginLeft="@dimen/medium_margin"
                 android:layout_below="@+id/linear_about"
 
@@ -65,6 +65,7 @@
 
             <LinearLayout
                 android:id="@+id/linear_email"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"

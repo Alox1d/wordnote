@@ -121,13 +121,17 @@ class TaskRepository(
     }
 
     override fun updateTask(task: ModelTask) {
-        title(task.timeStamp, task.title)
-        description(task.timeStamp, task.description)
-        descriptionHTML(task.timeStamp, task.descriptionHTML)
-        date(task.timeStamp, task.date)
-        priority(task.timeStamp, task.priority)
-        status(task.timeStamp, task.status)
-        isHidden(task.timeStamp, task.isHidden)
+        // One SQLite statement prevents a concurrent snapshot from capturing mixed old/new fields.
+        val values = ContentValues().apply {
+            put(TASK_TITLE_COLUMN, task.title)
+            put(TASK_DESCRIPTION_COLUMN, task.description)
+            put(TASK_DESCRIPTION_HTML_COLUMN, task.descriptionHTML)
+            put(TASK_DATE_COLUMN, task.date)
+            put(TASK_PRIORITY_COLUMN, task.priority)
+            put(TASK_STATUS_COLUMN, task.status)
+            put(TASK_IS_HIDDEN_COLUMN, task.isHidden)
+        }
+        writableDB.update(TASKS_TABLE, values, SELECTION_TIME_STAMP, arrayOf(task.timeStamp.toString()))
     }
 
     override fun update(column: String, key: Long, value: String?) {

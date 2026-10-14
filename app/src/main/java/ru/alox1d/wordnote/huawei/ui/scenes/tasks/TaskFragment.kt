@@ -1,6 +1,8 @@
 package ru.alox1d.wordnote.huawei.ui.scenes.tasks
 
 import android.content.DialogInterface
+import android.app.NotificationManager
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -10,17 +12,18 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SmoothScroller
 import com.example.toothpick.annotation.ApplicationScope
 import com.github.irshulx.Editor
-import com.github.irshulx.models.EditorType
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import ru.alox1d.wordnote.huawei.R
+import ru.alox1d.wordnote.huawei.WordNoteApp
 import ru.alox1d.wordnote.huawei.device.alarm.AlarmHelper
 import ru.alox1d.wordnote.huawei.device.alarm.AlarmHelper.Companion.instance
 import ru.alox1d.wordnote.huawei.di.module.MainModule
+import ru.alox1d.wordnote.huawei.data.storage.AttachmentReferences
+import ru.alox1d.wordnote.huawei.data.storage.AttachmentStore
 import ru.alox1d.wordnote.huawei.domain.model.Item
 import ru.alox1d.wordnote.huawei.domain.model.ModelTask
 import ru.alox1d.wordnote.huawei.domain.usecase.*
-import ru.alox1d.wordnote.huawei.helpers.util.Utils
 import ru.alox1d.wordnote.huawei.ui.scenes.tasks.adapters.TaskAdapter
 import ru.alox1d.wordnote.huawei.ui.scenes.tasks.adapters.TaskAdapter.TaskViewHolder
 import ru.alox1d.wordnote.huawei.ui.scenes.tasks.dialogs.EditTaskDialogFragment.Companion.newInstance
@@ -33,11 +36,12 @@ import java.util.*
 abstract class TaskFragment : Fragment() {
 
     protected var listeners: MutableList<EventListener> = ArrayList()
-    protected var hiddenTasks: MutableList<ModelTask> = arrayListOf()
+    protected var currentSearchQuery: String = ""
 
     protected lateinit var recyclerView: RecyclerView
     protected var layoutManager: RecyclerView.LayoutManager? = null
     protected lateinit var adapter: TaskAdapter
+    protected val isAdapterInitialized: Boolean get() = ::adapter.isInitialized
     protected lateinit var alarmHelper: AlarmHelper
 
     protected val mAddTaskUseCase: AddTaskUseCase by inject()
@@ -56,7 +60,7 @@ abstract class TaskFragment : Fragment() {
     }
 
     fun addListener(l: EventListener) {
-        listeners.add(l)
+        if (!listeners.contains(l)) listeners.add(l)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -121,13 +125,8 @@ abstract class TaskFragment : Fragment() {
                 }
 
                 private fun removeTaskImgs() {
-                    val description = removingTask.description
-                    val editorContent = editor.getContentDeserialized(description)
-                    for (node in editorContent.nodes) {
-                        if (node.type == EditorType.img) {
-                            Utils.ImageUtils.deleteImg(context, node.content[0]) // path
-                        }
-                    }
+                    val store = AttachmentStore(requireContext())
+                    AttachmentReferences.paths(removingTask).forEach { store.deleteIfUnused(it) }
                 }
             })
             dialogBuilder.setNegativeButton(R.string.dialog_cancel) { dialog, which -> dialog.cancel() }
@@ -136,46 +135,54 @@ abstract class TaskFragment : Fragment() {
     }
 
     fun showTaskEditDialog(task: ModelTask?) {
-        val editingTaskDialog = newInstance(task!!)
+        if (task == null || !isTaskVisible(task)) return
+        if ((activity as? TasksActivity)?.showExistingTaskDialog() == true) return
+        val editingTaskDialog = newInstance(task)
         editingTaskDialog.addListener(object : EditingTaskListener {
             override fun onTaskEdited(updatedTask: ModelTask?) {
-                updateTask(updatedTask)
-                if (updatedTask?.isHidden == ModelTask.HIDDEN_TRUE_UNLOCKED) updatedTask.isHidden = ModelTask.HIDDEN_TRUE
-                if (updatedTask != null) {
-                    mUpdateUseCase.buildUseCase(updatedTask)
-                }
+                saveEditedTask(updatedTask)
             }
         })
         editingTaskDialog.show(requireActivity().supportFragmentManager, "EditTaskDialogFragment")
+    }
+
+    fun saveEditedTask(updatedTask: ModelTask?) {
+        if (updatedTask == null) return
+        if (updatedTask.isHidden == ModelTask.HIDDEN_TRUE_UNLOCKED) updatedTask.isHidden = ModelTask.HIDDEN_TRUE
+        mUpdateUseCase.buildUseCase(updatedTask)
+        if (updatedTask.isHidden != ModelTask.HIDDEN_FALSE) cancelTaskNotification(updatedTask)
+        refreshTasks()
     }
 
     abstract fun checkAdapter()
     abstract fun findTasks(title: String)
     abstract fun addTaskFromDB()
 
-    fun addHiddenTasks() {
-        hiddenTasks.forEach { task ->
-            task.isHidden = ModelTask.HIDDEN_TRUE_UNLOCKED
-            addTask(task, false)
-        }
-        hiddenTasks.clear()
-    }
-    fun removeHiddenTasks(){
-        adapter.removeAllItems()
-        addTaskFromDB()
-//        adapter.notifyItemRangeChanged(location, adapter.itemCount)
+    protected fun isTaskVisible(task: ModelTask): Boolean {
+        if (task.isHidden == ModelTask.HIDDEN_FALSE || WordNoteApp.isHiddenNotesUnlocked) return true
+        cancelTaskNotification(task)
+        return false
     }
 
+    private fun cancelTaskNotification(task: ModelTask) {
+        val manager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        manager?.cancel(task.timeStamp.toInt())
+    }
+
+    fun refreshTasks() {
+        if (::adapter.isInitialized) addTaskFromDB()
+    }
+
+    fun addHiddenTasks() = refreshTasks()
+
+    fun removeHiddenTasks() = refreshTasks()
+
     fun addTaskFromList(items: List<Item>) {
-        adapter.items = (items.toMutableList())
+        adapter.items = items.filter { it !is ModelTask || isTaskVisible(it) }.toMutableList()
     }
 
     val tasks: ArrayList<Item>?
-        get() = if (adapter.items != null) {
-            adapter.items as ArrayList<Item>?
-        } else {
-            ArrayList()
-        }
+        get() = if (::adapter.isInitialized) ArrayList(adapter.items) else arrayListOf()
 
     abstract fun moveTask(task: ModelTask)
 
@@ -188,6 +195,7 @@ abstract class TaskFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         checkAdapter()
+        refreshTasks()
     }
 
     protected fun smoothScrollToPos(position: Int) {
@@ -201,6 +209,7 @@ abstract class TaskFragment : Fragment() {
     }
 
     fun expandTask(timeStamp: Long) {
+        if (!::adapter.isInitialized) return
         val items = adapter.items
         for (position in items!!.indices) {
             if (items[position].isTask) {

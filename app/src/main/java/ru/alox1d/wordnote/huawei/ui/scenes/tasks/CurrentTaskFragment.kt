@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.irshulx.Editor
 import ru.alox1d.wordnote.huawei.R
-import ru.alox1d.wordnote.huawei.WordNoteApp
 import ru.alox1d.wordnote.huawei.domain.model.ModelSeparator
 import ru.alox1d.wordnote.huawei.domain.model.ModelTask
 import ru.alox1d.wordnote.huawei.helpers.*
@@ -69,57 +68,26 @@ class CurrentTaskFragment : TaskFragment() {
     }
 
     override fun findTasks(text: String) {
+        currentSearchQuery = text
+        if (!isAdapterInitialized) return
         adapter.removeAllItems()
-        val hiddenStatus =
-            if (WordNoteApp.isHiddenNotesUnlocked) ModelTask.HIDDEN_TRUE else ModelTask.HIDDEN_FALSE
-
-        val tasks: MutableList<ModelTask> = ArrayList()
-        val query = ("(" + SELECTION_LIKE_TITLE + " OR "
-                + SELECTION_LIKE_DESCRIPTION_HTML + ") AND ("
-                + SELECTION_STATUS + " OR " + SELECTION_STATUS
-                + ") AND ("
-                + SELECTION_HIDDEN + " OR "
-                + SELECTION_HIDDEN + ")")
-        tasks.addAll(
-            mGetTasksUseCase.buildUseCase(
-                query, arrayOf(
-                    "%$text%",
-                    "%$text%",
-                    Integer.toString(ModelTask.STATUS_CURRENT),
-                    Integer.toString(ModelTask.STATUS_OVERDUE),
-                    hiddenStatus.toString(),
-                    ModelTask.HIDDEN_FALSE.toString()
-                ), TASK_DATE_COLUMN
-            )
-        )
-        for (i in tasks.indices) {
-            addTask(tasks[i], false)
-        }
+        val query = "($SELECTION_LIKE_TITLE OR $SELECTION_LIKE_DESCRIPTION_HTML) AND " +
+                "($SELECTION_STATUS OR $SELECTION_STATUS)"
+        mGetTasksUseCase.buildUseCase(
+            query, arrayOf(
+                "%$text%", "%$text%",
+                ModelTask.STATUS_CURRENT.toString(), ModelTask.STATUS_OVERDUE.toString()
+            ), TASK_DATE_COLUMN
+        ).forEach { addTask(it, false) }
     }
 
-    override fun addTaskFromDB() {
-        adapter.removeAllItems()
-        val tasks: MutableList<ModelTask> = ArrayList()
-        tasks.addAll(
-            mGetTasksUseCase.buildUseCase(
-                SELECTION_STATUS
-                        + " OR "
-                        + SELECTION_STATUS, arrayOf(
-                    Integer.toString(ModelTask.STATUS_CURRENT),
-                    Integer.toString(ModelTask.STATUS_OVERDUE)
-                ), TASK_DATE_COLUMN
-            )
-        )
-        for (i in tasks.indices) {
-            addTask(tasks[i], false)
-        }
-    }
+    override fun addTaskFromDB() = findTasks(currentSearchQuery)
 
     override fun addTask(newTask: ModelTask?, saveToDB: Boolean) {
         var position = -1
         val separator: ModelSeparator?
         if (newTask != null) {
-            if (checkHiddenFlag(newTask)) {
+            if (isTaskVisible(newTask)) {
                 for (i in 0 until adapter.itemCount) {
                     if (adapter.getItem(i).isTask) {
                         val task = adapter.getItem(i) as ModelTask
@@ -151,8 +119,6 @@ class CurrentTaskFragment : TaskFragment() {
                     }
                     adapter.addItem(newTask)
                 }
-            } else {
-                hiddenTasks.add(newTask)
             }
             if (saveToDB) {
                 checkHiddenTasksUnlocked(newTask)
@@ -164,13 +130,6 @@ class CurrentTaskFragment : TaskFragment() {
     private fun checkHiddenTasksUnlocked(newTask: ModelTask) {
         if (newTask.isHidden == ModelTask.HIDDEN_TRUE_UNLOCKED)
             newTask.isHidden = ModelTask.HIDDEN_TRUE
-    }
-
-    private fun checkHiddenFlag(task: ModelTask): Boolean {
-        return task.isHidden == ModelTask.HIDDEN_FALSE
-                || task.isHidden == ModelTask.HIDDEN_TRUE_UNLOCKED
-                || (task.isHidden == ModelTask.HIDDEN_TRUE
-                && WordNoteApp.isHiddenNotesUnlocked)
     }
 
     private fun setDateStatus(
@@ -222,7 +181,7 @@ class CurrentTaskFragment : TaskFragment() {
 
 
     override fun checkAdapter() {
-        if (adapter == null) {
+        if (!isAdapterInitialized) {
             adapter = CurrentTaskAdapter()
             addTaskFromDB()
         }

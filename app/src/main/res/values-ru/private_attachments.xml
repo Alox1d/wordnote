@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="image_save_failed">Не удалось сохранить изображение. Попробуйте выбрать другое.</string>
+</resources>

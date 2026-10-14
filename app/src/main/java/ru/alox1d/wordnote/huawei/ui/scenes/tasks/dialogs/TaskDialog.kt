@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
@@ -42,18 +41,69 @@ import ru.alox1d.wordnote.huawei.domain.model.ModelTask
 import ru.alox1d.wordnote.huawei.domain.service.asr.IASRService
 import ru.alox1d.wordnote.huawei.domain.services.tr.HuaweiTextRecognitionService
 import ru.alox1d.wordnote.huawei.helpers.util.Utils
-import ru.alox1d.wordnote.huawei.helpers.util.Utils.ImageUtils
+import ru.alox1d.wordnote.huawei.data.storage.AttachmentStore
 import ru.alox1d.wordnote.huawei.ui.scenes.tasks.TasksActivity
 import ru.alox1d.wordnote.huawei.ui.scenes.textrecognition.BaseTextRecognitionActivity
 import ru.alox1d.wordnote.huawei.ui.scenes.textrecognition.TextRecognitionActivity
 import toothpick.ktp.KTP
 import toothpick.ktp.delegate.inject
 import toothpick.smoothie.lifecycle.closeOnDestroy
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.*
 
 abstract class TaskDialog() : DialogFragment() {
+    private var hasSensitiveContent = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        hasSensitiveContent = savedInstanceState?.getBoolean(SENSITIVE_DRAFT) == true ||
+                (arguments?.getInt("is_hidden", ModelTask.HIDDEN_FALSE) ?: ModelTask.HIDDEN_FALSE) != ModelTask.HIDDEN_FALSE
+    }
+
+    private fun rememberSensitivity() {
+        if ((arguments?.getInt("is_hidden", ModelTask.HIDDEN_FALSE) ?: ModelTask.HIDDEN_FALSE) != ModelTask.HIDDEN_FALSE ||
+            (::switchHidden.isInitialized && switchHidden.isChecked)) {
+            hasSensitiveContent = true
+        }
+        if (hasSensitiveContent) dialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+    }
+
+    fun refreshHiddenNotesVisibility(): Boolean {
+        rememberSensitivity()
+        val currentDialog = dialog ?: return false
+        if (hasSensitiveContent && (!WordNoteApp.isHiddenNotesUnlocked || !WordNoteApp.isActivityVisible)) {
+            currentDialog.hide()
+            return false
+        }
+        currentDialog.show()
+        return true
+    }
+
+    override fun onStart() {
+        // DialogFragment.onStart shows its window. Protect it before that call,
+        // then hide a locked draft synchronously before the first frame.
+        rememberSensitivity()
+        super.onStart()
+        refreshHiddenNotesVisibility()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshHiddenNotesVisibility()
+    }
+
+    override fun onPause() {
+        rememberSensitivity()
+        if (hasSensitiveContent) dialog?.hide()
+        super.onPause()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        rememberSensitivity()
+        outState.putBoolean(SENSITIVE_DRAFT, hasSensitiveContent)
+        super.onSaveInstanceState(outState)
+    }
+
 
     protected lateinit var editor: Editor
     protected lateinit var inflater: LayoutInflater
@@ -104,7 +154,6 @@ abstract class TaskDialog() : DialogFragment() {
             colorPickerDialogBuilder.show()
         }
         container.findViewById<View>(R.id.action_insert_image).setOnClickListener {
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WordNoteApp.IMAGE_PICKED)
             editor.openImagePicker()
         }
         container.findViewById<View>(R.id.action_recognize_image).setOnClickListener {
@@ -129,21 +178,13 @@ abstract class TaskDialog() : DialogFragment() {
             }
 
             override fun onUpload(image: Bitmap, uuid: String) {
-                /**
-                 * Do your upload here from the bitmap received and all onImageUploadComplete(String url); to insert the result url to
-                 * let the editor know the upload has completed
-                 */
-                var tempUri: Uri? = null
                 try {
-                    tempUri = ImageUtils.saveImage(image, context, "WordNote/")
-                } catch (e: FileNotFoundException) {
-                    Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show()
+                    val imageFile = AttachmentStore(requireContext()).saveBitmap(image)
+                    editor.onImageUploadComplete(imageFile.path, uuid)
+                } catch (_: Exception) {
+                    editor.onImageUploadFailed(uuid)
+                    Toast.makeText(context, R.string.image_save_failed, Toast.LENGTH_LONG).show()
                 }
-                val localUrl = ImageUtils.getRealPathFromURI(tempUri, context)
-
-                Toast.makeText(context, requireActivity().resources.getString(R.string.image_is_saved) + localUrl, Toast.LENGTH_LONG).show()
-                editor.onImageUploadComplete(localUrl, uuid)
-                // WHEN FAILED editor.onImageUploadFailed(uuid);
             }
 
             override fun onRenderMacro(name: String, props: Map<String, Any>, index: Int): View? {
@@ -169,8 +210,7 @@ abstract class TaskDialog() : DialogFragment() {
                 val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
                 editor.insertImage(bitmap)
             } catch (e: IOException) {
-                Toast.makeText(requireActivity().applicationContext, e.message, Toast.LENGTH_SHORT).show()
-                e.printStackTrace()
+                Toast.makeText(requireContext(), R.string.image_save_failed, Toast.LENGTH_SHORT).show()
             }
         } else if (requestCode == TextRecognitionActivity.REQUEST && resultCode == Activity.RESULT_OK) {
             val text = data?.extras?.getString(BaseTextRecognitionActivity.ML_TEXT)
@@ -275,6 +315,8 @@ abstract class TaskDialog() : DialogFragment() {
     protected fun setupAlertDialog(builder: AlertDialog.Builder): AlertDialog {
         val alertDialog = builder.create()
         alertDialog.window!!.setBackgroundDrawableResource(R.drawable.dialog_background)
+        rememberSensitivity()
+        if (hasSensitiveContent) alertDialog.window!!.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         alertDialog.setOnShowListener { dialog ->
             val positiveButton = (dialog as AlertDialog).getButton(DialogInterface.BUTTON_POSITIVE)
             if (etTitle.length() == 0) {
@@ -324,6 +366,8 @@ abstract class TaskDialog() : DialogFragment() {
 
     protected fun setHiddenState(it: Boolean, task: ModelTask) {
         if (it) {
+            hasSensitiveContent = true
+            dialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
             if (WordNoteApp.isHiddenNotesUnlocked)
                 task.isHidden = ModelTask.HIDDEN_TRUE_UNLOCKED else task.isHidden = ModelTask.HIDDEN_TRUE
         } else {
@@ -354,5 +398,9 @@ abstract class TaskDialog() : DialogFragment() {
                 }
             }
         }
+    }
+
+    private companion object {
+        const val SENSITIVE_DRAFT = "sensitive_private_draft"
     }
 }

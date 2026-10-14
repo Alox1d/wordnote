@@ -1,8 +1,8 @@
-<p align="center"><img src="assets/poster.png" alt="WordNote — a place for ideas" width="100%"></p>
+<p align="center"><img src="assets/poster.png" alt="WordNote - a place for ideas" width="100%"></p>
 
 # WordNote
 
-An Android notebook by Alexander Baranov with rich text, reminders, widgets and Huawei integrations. My graduation project at ИГЭУ им. Ленина and the app with which I won the **APP student category at [Huawei Cup 2020](https://www.huawei.ru/news/obyavleny-luchshie-razrabotchiki-mobilnykh-prilozheniy-v-ramkakh-sorevnovaniya-huawei-cup-2020/)**. Now shared as source for exploring its architecture and features.
+An Android notebook by Alexander Baranov with rich text, reminders, widgets and Huawei integrations. My graduation project at Ivanovo State Power Engineering University and the app with which I won the **APP student category at [Huawei Cup 2020](https://www.huawei.ru/news/obyavleny-luchshie-razrabotchiki-mobilnykh-prilozheniy-v-ramkakh-sorevnovaniya-huawei-cup-2020/)**. Now shared as source for exploring its architecture and features.
 
 ## Inside
 
@@ -14,14 +14,15 @@ An Android notebook by Alexander Baranov with rich text, reminders, widgets and 
 
 ## Project structure
 
-`app` contains the Kotlin/Java application. `app/libs/laser-native-editor` contains the adapted editor library, with its original attribution. `dateparser-release` contains the historical DateParser AAR; the maintained parser source is at [Alox1d/dateparser](https://github.com/Alox1d/dateparser). The bundled AAR predates that repository's current fixes.
+`app` contains the Kotlin/Java application. `app/libs/laser-native-editor` contains the adapted editor library, with its original attribution. `dateparser-release` contains the historical DateParser AAR; the maintained parser source is at [DateParser Kotlin](https://github.com/Alox1d/dateparser-kotlin). The bundled AAR predates that repository's current fixes.
 
 ## Build and test
 
 Use **JDK 21**, Android SDK **36** and Build Tools **36.0.0**. The checked-in wrapper uses Gradle **9.4.1** with its distribution SHA-256 pinned; Android Gradle Plugin is **9.2.1**, with built-in Kotlin **2.2.10**. Android Studio's bundled JDK 21 works. Set `sdk.dir` in an ignored local `local.properties`, then run:
 
 ```sh
-./gradlew :app:assembleDebug testDebugUnitTest lintDebug
+./gradlew \
+  :app:assembleDebug testDebugUnitTest lintDebug
 ./gradlew :app:assembleRelease
 ```
 
@@ -35,15 +36,29 @@ For cloud features, register your own Huawei developer project and supply `app/a
 
 AGConnect 1.9 still needs the legacy AGP variant API, so `android.newDsl=false` remains enabled while built-in Kotlin stays enabled. The OCR model AARs share a vendor namespace and currently need `android.uniquePackageNames=false`. These compatibility options are documented by [AGP](https://developer.android.com/build/releases/agp-9-0-0-release-notes); the runtime Huawei SDKs have not all been upgraded.
 
+### Backup behavior
+
+Manual and scheduled Huawei backups use a versioned ZIP snapshot containing validated SQLite notes and their private attachments. Restore prefers this archive and reads the historical database-only backup only when no ZIP exists. Failed queries/transfers are reported without replacing current notes. A corrupt ZIP never falls back to another backup. Huawei sign-in remains in memory; it is not copied into preferences.
+
+Automatic backups support Off, Daily, Weekly and Monthly (30 days). Android schedules persisted network jobs on API 21+; API 19/20 use an inexact alarm and a foreground service. Execution time depends on network availability and system power restrictions. Background work uses silent sign-in and never opens a login screen; sign in manually again if the Huawei account becomes unavailable.
+
+System Android auto-backup is disabled. Android 12+ exclusion rules also block every app-data domain in automatic cloud backup and device transfer; no include/export rules are configured. The explicit Huawei ZIP backup remains available. Real Huawei account, cloud transfer and API 19/20 behavior still require device validation.
+
+### Hidden notes and attachments
+
+Both tabs and search require successful device authentication before showing private notes. Leaving the activity locks the session; private editor windows are hidden until authentication succeeds again, while their unsaved draft stays in memory. Sensitive windows block screenshots. Reminder notifications use generic text for private notes.
+
+New note images are stored under the app-private attachments directory and are included in the portable backup. Older releases created copies in the public gallery; those existing copies are left intact. A legacy database-only backup can restore images only if all referenced legacy images remain accessible locally. Missing images, unsupported editor data, corrupt checksums and oversized backups are rejected before replacing notes. Hidden notes use app access controls; the SQLite database and Huawei archive do not have a separate password-encryption layer.
+
 ### Verification status
 
-On 2026-10-14, clean debug and unsigned release builds (including R8), all 8 Robolectric tests, and Android Lint passed on JDK 21. Core note creation, editing, completion and persistence after process restart were checked on an isolated Android 15 (API 35) emulator. Lint and legacy Huawei SDK warnings remain; a passing build does not establish cloud compatibility. Tests cover SQLite note round trips, opening the main/backup screens, system/keyboard insets, notification permission requests, and list interactions after deleting an earlier note. JVM tests simulate an unavailable remote HMS service; they do not validate Huawei cloud behavior.
+On 2026-10-14, debug and unsigned release builds (including R8), **83 Robolectric tests**, and Android Lint completed successfully on JDK 21. Lint has no errors; existing warnings and vendor Huawei/R8 warnings remain. Tests cover both tabs/search/authentication failure and cancellation, private editor lifecycle and restored saves, recycled row privacy, portable image restoration into an empty installation, malformed data/paths, transaction rollback and cancelled downloads, cloud failure handling, and scheduling without postponing the next run.
 
-This remains a project under review, rather than a store-ready release. API 19 device behavior, a real Huawei account/cloud configuration, OCR/voice and backups need separate end-to-end validation. Hidden-note access and backup/restore handling also need further hardening before relying on them for sensitive or irreplaceable notes.
+An isolated Android 15 (API 35) emulator confirmed private-draft masking after Home/return and backup controls recovering after cancelled Huawei sign-in. Earlier modernization checks also exercised core note creation, editing, completion and process-restart persistence. JVM tests replace external HMS authentication/Drive services and do not validate a real Huawei account, cloud transfer or device biometric/PIN prompt. API 19/20 device behavior, API 36 runtime behavior, and real HMS OCR/voice/cloud still require device validation. This is a draft update under review, not a published store release.
 
 ## Public source changes
 
-Removed token logging, private signing configuration and obsolete publishing scripts. Font mappings now use the bundled Apache-2.0 Roboto Condensed files. The public source starts from a prepared snapshot; the original development history is preserved privately.
+Removed token logging, private signing configuration, personal contact/ad/VK identifiers and obsolete publishing scripts. The public build leaves the ad unit unset and does not request banners. Font mappings now use the bundled Apache-2.0 Roboto Condensed files. The public source starts from a prepared snapshot; the original development history is preserved privately.
 
 ## License
 

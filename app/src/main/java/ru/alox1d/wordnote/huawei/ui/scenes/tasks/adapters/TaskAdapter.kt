@@ -152,6 +152,10 @@ abstract class TaskAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder?>() 
     }
 
     protected fun initExpand(task: ModelTask, holder: TaskViewHolder) {
+        holder.description.clearAllContents()
+        holder.containerDescription.visibility = View.GONE
+        holder.ivArrow.visibility = View.GONE
+        holder.ivArrow.setOnClickListener(null)
         val editorContent = holder.description.getContentDeserialized(task.description)
         var isNotEmptyFound = false
         initDescriptionTextColor(editorContent, holder)
@@ -160,7 +164,6 @@ abstract class TaskAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder?>() 
             for (i in node.content.indices) {
                 if (!node.content[i].isEmpty()) {
                     isNotEmptyFound = true
-                    holder.description.clearAllContents()
                     holder.description.render(editorContent)
 
                     holder.ivArrow.visibility = View.VISIBLE
