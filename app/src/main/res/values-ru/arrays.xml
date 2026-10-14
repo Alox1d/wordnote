@@ -8,7 +8,7 @@
     <string-array name="intervals">
         <item>Никогда</item>
         <item>Ежедневно</item>
-<!--        <item>Еженедельно</item>-->
-<!--        <item>Ежемесячно</item>-->
+        <item>Еженедельно</item>
+        <item>Ежемесячно</item>
     </string-array>
 </resources>

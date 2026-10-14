@@ -8,8 +8,8 @@
     <string-array name="intervals">
         <item>Off</item>
         <item>Daily</item>
-<!--        <item>Weekly</item>-->
-<!--        <item>Monthly</item>-->
+        <item>Weekly</item>
+        <item>Monthly</item>
     </string-array>
 
 </resources>

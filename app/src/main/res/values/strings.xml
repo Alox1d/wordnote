@@ -48,7 +48,7 @@ Developer: Alox1d (Baranov A.Y.)
         https://github.com/hdodenhof/CircleImageView
         DateParser
     \nContacts:</string>
-    <string name="about_email" translatable="false">alox1d@mail.ru</string>
+    <string name="about_email" translatable="false"></string>
     <string name="about_app_title">About app</string>
     <string name="about_version_title">Version:&#8194;</string>
     <string name="app_version" translatable="false">1.0</string>
@@ -56,7 +56,7 @@ Developer: Alox1d (Baranov A.Y.)
     <string name="popUpColor_cancel">CANCEL</string>
     <string name="description_optional">Description (optional)</string>
     <string name="uploading">Uploading…</string>
-    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3447889636990475/2473885174</string>
+    <string name="banner_ad_unit_id" translatable="false"></string>
     <string name="sync_vk">Sync with VKontakte</string>
     <string name="VK" translatable="false">VK</string>
     <string name="dialog_vk_search_title">Choose a dialog</string>
@@ -124,6 +124,11 @@ Developer: Alox1d (Baranov A.Y.)
     <string name="show_hidden_notes">Show hidden notes</string>
     <string name="hide_note">Hide</string>
     <string name="youtube">Youtube</string>
-    <integer name="com_vk_sdk_AppId">7314115</integer>
 
+    <string name="reminder_private_text">A WordNote reminder is due</string>
+    <string name="backup_login_failed">Could not sign in to Huawei Drive. Please try again.</string>
+    <string name="backup_operation_failed">Backup could not be completed. Your local notes have not been changed.</string>
+    <string name="backup_restore_failed">Restore could not be completed. Your current notes have been kept.</string>
+    <string name="backup_schedule_failed">Could not schedule automatic backup. Please try again.</string>
+    <string name="backup_login_cancelled">Huawei sign-in cancelled</string>
 </resources>

@@ -14,7 +14,7 @@
         android:maxHeight="20dp"
         android:maxWidth="20dp"
         android:background="?attr/selectableItemBackground"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         app:srcCompat="@drawable/ic_baseline_keyboard_voice_24" />
     <ImageButton
         android:id="@+id/action_recognize_image"
@@ -26,7 +26,7 @@
         android:scaleType="centerInside"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         app:srcCompat="@drawable/ic_text_recognition_icon" />
     <ImageButton
         android:id="@+id/action_insert_image"
@@ -37,7 +37,7 @@
         android:background="?attr/selectableItemBackground"
 
 
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
 
         android:src="@drawable/icon_image" />
 
@@ -46,7 +46,7 @@
         android:id="@+id/action_bold"
         android:layout_width="@dimen/editor_toolbar_buttion_size"
         android:layout_height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         android:background="?attr/selectableItemBackground"
 
 
@@ -60,7 +60,7 @@
         android:id="@+id/action_Italic"
         android:layout_width="@dimen/editor_toolbar_buttion_size"
         android:layout_height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         android:background="?attr/selectableItemBackground"
 
 
@@ -89,7 +89,7 @@
         android:width="@dimen/editor_toolbar_buttion_size"
         android:height="@dimen/editor_toolbar_buttion_size"
         style="?android:attr/borderlessButtonStyle"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
 
         android:text="H1"
         android:textColor="?colorPrimary"
@@ -103,7 +103,7 @@
         android:width="@dimen/editor_toolbar_buttion_size"
         android:height="@dimen/editor_toolbar_buttion_size"
         android:text="H2"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
 
         style="?android:attr/borderlessButtonStyle"
 
@@ -119,7 +119,7 @@
         android:layout_height="@dimen/editor_toolbar_buttion_size"
         android:width="@dimen/editor_toolbar_buttion_size"
         android:height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
 
         style="?android:attr/borderlessButtonStyle"
 
@@ -132,7 +132,7 @@
         android:id="@+id/action_insert_link"
         android:layout_width="@dimen/editor_toolbar_buttion_size"
         android:layout_height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         android:background="?attr/selectableItemBackground"
 
 
@@ -144,7 +144,7 @@
         android:id="@+id/action_indent"
         android:layout_width="@dimen/editor_toolbar_buttion_size"
         android:layout_height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         android:background="?attr/selectableItemBackground"
 
 
@@ -157,7 +157,7 @@
         android:id="@+id/action_outdent"
         android:layout_width="@dimen/editor_toolbar_buttion_size"
         android:layout_height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         android:background="?attr/selectableItemBackground"
 
 
@@ -169,7 +169,7 @@
         android:id="@+id/action_blockquote"
         android:layout_width="@dimen/editor_toolbar_buttion_size"
         android:layout_height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         android:background="?attr/selectableItemBackground"
 
 
@@ -182,7 +182,7 @@
         android:id="@+id/action_bulleted"
         android:layout_width="@dimen/editor_toolbar_buttion_size"
         android:layout_height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         android:background="?attr/selectableItemBackground"
 
 
@@ -194,7 +194,7 @@
         android:id="@+id/action_unordered_numbered"
         android:layout_width="@dimen/editor_toolbar_buttion_size"
         android:layout_height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         android:background="?attr/selectableItemBackground"
 
 
@@ -206,7 +206,7 @@
         android:id="@+id/action_hr"
         android:layout_width="@dimen/editor_toolbar_buttion_size"
         android:layout_height="@dimen/editor_toolbar_buttion_size"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         android:background="?attr/selectableItemBackground"
 
 
@@ -243,7 +243,7 @@
         android:background="?attr/selectableItemBackground"
         android:maxHeight="20dp"
         android:maxWidth="20dp"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
 
         android:src="@drawable/icon_erase" />
 </LinearLayout>

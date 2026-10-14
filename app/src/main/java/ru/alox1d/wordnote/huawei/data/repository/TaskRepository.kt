@@ -26,14 +26,14 @@ class TaskRepository(
             null
         )
         if (cursor.moveToFirst()) {
-            val title = cursor.getString(cursor.getColumnIndex(TASK_TITLE_COLUMN))
-            val description = cursor.getString(cursor.getColumnIndex(TASK_DESCRIPTION_COLUMN))
+            val title = cursor.getString(cursor.getColumnIndexOrThrow(TASK_TITLE_COLUMN))
+            val description = cursor.getString(cursor.getColumnIndexOrThrow(TASK_DESCRIPTION_COLUMN))
             val descriptionHTML =
-                cursor.getString(cursor.getColumnIndex(TASK_DESCRIPTION_HTML_COLUMN))
-            val date = cursor.getLong(cursor.getColumnIndex(TASK_DATE_COLUMN))
-            val priority = cursor.getInt(cursor.getColumnIndex(TASK_PRIORITY_COLUMN))
-            val status = cursor.getInt(cursor.getColumnIndex(TASK_STATUS_COLUMN))
-            val isHidden = cursor.getInt(cursor.getColumnIndex(TASK_IS_HIDDEN_COLUMN))
+                cursor.getString(cursor.getColumnIndexOrThrow(TASK_DESCRIPTION_HTML_COLUMN))
+            val date = cursor.getLong(cursor.getColumnIndexOrThrow(TASK_DATE_COLUMN))
+            val priority = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_PRIORITY_COLUMN))
+            val status = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_STATUS_COLUMN))
+            val isHidden = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_IS_HIDDEN_COLUMN))
             modelTask = ModelTask(
                 title,
                 description,
@@ -66,15 +66,15 @@ class TaskRepository(
         )
         if (cursor.moveToFirst()) {
             do {
-                val title = cursor.getString(cursor.getColumnIndex(TASK_TITLE_COLUMN))
-                val description = cursor.getString(cursor.getColumnIndex(TASK_DESCRIPTION_COLUMN))
+                val title = cursor.getString(cursor.getColumnIndexOrThrow(TASK_TITLE_COLUMN))
+                val description = cursor.getString(cursor.getColumnIndexOrThrow(TASK_DESCRIPTION_COLUMN))
                 val descriptionHTML =
-                    cursor.getString(cursor.getColumnIndex(TASK_DESCRIPTION_HTML_COLUMN))
-                val date = cursor.getLong(cursor.getColumnIndex(TASK_DATE_COLUMN))
-                val priority = cursor.getInt(cursor.getColumnIndex(TASK_PRIORITY_COLUMN))
-                val status = cursor.getInt(cursor.getColumnIndex(TASK_STATUS_COLUMN))
-                val timeStamp = cursor.getLong(cursor.getColumnIndex(TASK_TIME_STAMP_COLUMN))
-                val isHidden = cursor.getInt(cursor.getColumnIndex(TASK_IS_HIDDEN_COLUMN))
+                    cursor.getString(cursor.getColumnIndexOrThrow(TASK_DESCRIPTION_HTML_COLUMN))
+                val date = cursor.getLong(cursor.getColumnIndexOrThrow(TASK_DATE_COLUMN))
+                val priority = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_PRIORITY_COLUMN))
+                val status = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_STATUS_COLUMN))
+                val timeStamp = cursor.getLong(cursor.getColumnIndexOrThrow(TASK_TIME_STAMP_COLUMN))
+                val isHidden = cursor.getInt(cursor.getColumnIndexOrThrow(TASK_IS_HIDDEN_COLUMN))
                 val modelTask = ModelTask(
                     title,
                     description,
@@ -121,13 +121,17 @@ class TaskRepository(
     }
 
     override fun updateTask(task: ModelTask) {
-        title(task.timeStamp, task.title)
-        description(task.timeStamp, task.description)
-        descriptionHTML(task.timeStamp, task.descriptionHTML)
-        date(task.timeStamp, task.date)
-        priority(task.timeStamp, task.priority)
-        status(task.timeStamp, task.status)
-        isHidden(task.timeStamp, task.isHidden)
+        // One SQLite statement prevents a concurrent snapshot from capturing mixed old/new fields.
+        val values = ContentValues().apply {
+            put(TASK_TITLE_COLUMN, task.title)
+            put(TASK_DESCRIPTION_COLUMN, task.description)
+            put(TASK_DESCRIPTION_HTML_COLUMN, task.descriptionHTML)
+            put(TASK_DATE_COLUMN, task.date)
+            put(TASK_PRIORITY_COLUMN, task.priority)
+            put(TASK_STATUS_COLUMN, task.status)
+            put(TASK_IS_HIDDEN_COLUMN, task.isHidden)
+        }
+        writableDB.update(TASKS_TABLE, values, SELECTION_TIME_STAMP, arrayOf(task.timeStamp.toString()))
     }
 
     override fun update(column: String, key: Long, value: String?) {

@@ -46,7 +46,7 @@
         android:background="@drawable/button_circle_background"
         android:padding="5dp"
         android:src="@mipmap/album_round"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         />
 
     <RelativeLayout
@@ -91,7 +91,7 @@
         android:layout_alignParentRight="true"
         android:background="@drawable/button_circle_background"
         android:src="@mipmap/icon_language_setting"
-        android:tint="?colorPrimary"
+        app:tint="?colorPrimary"
         />
 
     <ImageButton

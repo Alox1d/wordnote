@@ -1,22 +1,24 @@
 package ru.alox1d.wordnote.huawei.helpers.util;
 
 import android.app.Activity;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera.CameraInfo;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.huawei.hms.mlsdk.common.MLFrame;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class BitmapUtils {
     private static final String TAG = "BitmapUtils";
+    private static final long MAX_IMAGE_BYTES = 32L * 1024 * 1024;
 
     public static Bitmap rotateBitmap(Bitmap bitmap, int rotation, int facing) {
         Matrix matrix = new Matrix();
@@ -44,26 +46,65 @@ public class BitmapUtils {
         }
     }
 
-    private static String getImagePath(Activity activity, Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = activity.managedQuery(uri, projection, null, null, null);
-        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        return cursor.getString(columnIndex);
-    }
-
     public static Bitmap loadFromPath(Activity activity, Uri uri, int width, int height) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
+        if (uri == null || width <= 0 || height <= 0) {
+            return null;
+        }
+        File imageFile = null;
+        try {
+            // Providers may expose only a URI. A private temporary copy also lets API 19-23
+            // read EXIF, whose platform InputStream constructor is available only on API 24+.
+            imageFile = File.createTempFile("wordnote-ocr-", ".image", activity.getCacheDir());
+            try (InputStream input = activity.getContentResolver().openInputStream(uri);
+                 FileOutputStream output = new FileOutputStream(imageFile)) {
+                if (input == null) {
+                    return null;
+                }
+                byte[] buffer = new byte[16 * 1024];
+                long total = 0;
+                int count;
+                while ((count = input.read(buffer)) != -1) {
+                    if (total + count > MAX_IMAGE_BYTES) {
+                        return null;
+                    }
+                    output.write(buffer, 0, count);
+                    total += count;
+                }
+            }
 
-        String path = getImagePath(activity, uri);
-        BitmapFactory.decodeFile(path, options);
-        int sampleSize = calculateInSampleSize(options, width, height);
-        options.inSampleSize = sampleSize;
-        options.inJustDecodeBounds = false;
-
-        Bitmap bitmap = zoomImage(BitmapFactory.decodeFile(path, options), width, height);
-        return rotateBitmap(bitmap, getRotationAngle(path));
+            String path = imageFile.getPath();
+            int rotation = getRotationAngle(path);
+            int decodeWidth = rotation == 90 || rotation == 270 ? height : width;
+            int decodeHeight = rotation == 90 || rotation == 270 ? width : height;
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(path, options);
+            if (options.outWidth <= 0 || options.outHeight <= 0) {
+                return null;
+            }
+            options.inSampleSize = calculateInSampleSize(options, decodeWidth, decodeHeight);
+            options.inJustDecodeBounds = false;
+            Bitmap decoded = BitmapFactory.decodeFile(path, options);
+            if (decoded == null) {
+                return null;
+            }
+            Bitmap scaled = zoomImage(decoded, decodeWidth, decodeHeight);
+            if (scaled != decoded) {
+                decoded.recycle();
+            }
+            Bitmap rotated = rotateBitmap(scaled, rotation);
+            if (rotated != scaled) {
+                scaled.recycle();
+            }
+            return rotated;
+        } catch (IOException | SecurityException error) {
+            Log.w(TAG, "Unable to read selected image");
+            return null;
+        } finally {
+            if (imageFile != null) {
+                imageFile.delete();
+            }
+        }
     }
 
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {

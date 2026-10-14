@@ -120,4 +120,10 @@
     <string name="youtube">Youtube</string>
 
 
+    <string name="reminder_private_text">Наступило время напоминания WordNote</string>
+    <string name="backup_login_failed">Не удалось войти в Huawei Drive. Попробуйте ещё раз.</string>
+    <string name="backup_operation_failed">Не удалось создать резервную копию. Локальные заметки не изменены.</string>
+    <string name="backup_restore_failed">Не удалось восстановить копию. Текущие заметки сохранены.</string>
+    <string name="backup_schedule_failed">Не удалось настроить автоматическое резервирование. Попробуйте ещё раз.</string>
+    <string name="backup_login_cancelled">Вход в Huawei отменён</string>
 </resources>

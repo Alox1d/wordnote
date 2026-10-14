@@ -42,8 +42,7 @@ abstract class TaskAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder?>() 
 
     @JvmField
     var containsSeparatorFuture = false
-    protected var mExpandedPosition = RecyclerView.NO_POSITION
-    protected var mExpandedHolder: TaskViewHolder? = null
+    private var expandedTaskTimeStamp: Long? = null
 
     private val on_attach = true
     var DURATION: Long = 200
@@ -93,6 +92,9 @@ abstract class TaskAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder?>() 
 
     fun removeItem(location: Int) {
         if (location >= 0 && location <= itemCount - 1) {
+            if ((items[location] as? ModelTask)?.timeStamp == expandedTaskTimeStamp) {
+                expandedTaskTimeStamp = null
+            }
             items.removeAt(location)
             notifyItemRemoved(location)
             if (location - 1 >= 0 && location <= itemCount - 1) {
@@ -122,6 +124,7 @@ abstract class TaskAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder?>() 
     }
 
     fun removeAllItems() {
+        expandedTaskTimeStamp = null
         if (itemCount != 0) {
             items = ArrayList()
             notifyDataSetChanged()
@@ -148,7 +151,11 @@ abstract class TaskAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder?>() 
 
     }
 
-    protected fun initExpand(position: Int, task: ModelTask, holder: TaskViewHolder) {
+    protected fun initExpand(task: ModelTask, holder: TaskViewHolder) {
+        holder.description.clearAllContents()
+        holder.containerDescription.visibility = View.GONE
+        holder.ivArrow.visibility = View.GONE
+        holder.ivArrow.setOnClickListener(null)
         val editorContent = holder.description.getContentDeserialized(task.description)
         var isNotEmptyFound = false
         initDescriptionTextColor(editorContent, holder)
@@ -157,13 +164,15 @@ abstract class TaskAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder?>() 
             for (i in node.content.indices) {
                 if (!node.content[i].isEmpty()) {
                     isNotEmptyFound = true
-                    holder.description.clearAllContents()
                     holder.description.render(editorContent)
 
                     holder.ivArrow.visibility = View.VISIBLE
-                    val isExpanded = position == mExpandedPosition
+                    val isExpanded = task.timeStamp == expandedTaskTimeStamp
                     holder.ivArrow.setOnClickListener {
-                        toggleLayout(holder, isExpanded, position)
+                        val currentPosition = items.indexOf(task)
+                        if (currentPosition != RecyclerView.NO_POSITION) {
+                            toggleLayout(holder, task.timeStamp == expandedTaskTimeStamp, currentPosition)
+                        }
                     }
                     holder.containerDescription.visibility = if (isExpanded) View.VISIBLE else View.GONE
                     break
@@ -204,7 +213,7 @@ abstract class TaskAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder?>() 
         if (holder != null) {
             expandWithFixedAnimations(isExpanded, holder)
         }
-        expandByRecyclerView(position, isExpanded, holder)
+        expandByRecyclerView(position, isExpanded)
 
     }
 
@@ -216,15 +225,14 @@ abstract class TaskAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder?>() 
         }
     }
 
-    private fun expandByRecyclerView(position: Int, isExpanded: Boolean, holder: TaskViewHolder?) {
-        if (isExpanded) {
-            notifyItemChanged(position);
-            mExpandedPosition = -1;
-        } else {
-                notifyItemChanged(mExpandedPosition);
-            mExpandedPosition = position;
-            mExpandedHolder = holder
-            notifyItemChanged(position);
+    private fun expandByRecyclerView(position: Int, isExpanded: Boolean) {
+        val previousPosition = items.indexOfFirst { (it as? ModelTask)?.timeStamp == expandedTaskTimeStamp }
+        expandedTaskTimeStamp = if (isExpanded) null else (items.getOrNull(position) as? ModelTask)?.timeStamp
+        if (previousPosition != RecyclerView.NO_POSITION && previousPosition != position) {
+            notifyItemChanged(previousPosition)
+        }
+        if (position in items.indices) {
+            notifyItemChanged(position)
         }
     }
 

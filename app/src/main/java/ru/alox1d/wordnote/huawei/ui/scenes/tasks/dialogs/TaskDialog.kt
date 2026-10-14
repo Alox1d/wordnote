@@ -9,8 +9,9 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
+import android.content.pm.PackageManager
+import com.huawei.hms.mlplugin.asr.MLAsrCaptureConstants
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
@@ -21,7 +22,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.DialogFragment
 import com.example.toothpick.annotation.ApplicationScope
 import com.flask.colorpicker.ColorPickerView
@@ -42,18 +42,89 @@ import ru.alox1d.wordnote.huawei.domain.model.ModelTask
 import ru.alox1d.wordnote.huawei.domain.service.asr.IASRService
 import ru.alox1d.wordnote.huawei.domain.services.tr.HuaweiTextRecognitionService
 import ru.alox1d.wordnote.huawei.helpers.util.Utils
-import ru.alox1d.wordnote.huawei.helpers.util.Utils.ImageUtils
-import ru.alox1d.wordnote.huawei.ui.scenes.tasks.TasksActivity
+import ru.alox1d.wordnote.huawei.data.storage.AttachmentStore
 import ru.alox1d.wordnote.huawei.ui.scenes.textrecognition.BaseTextRecognitionActivity
 import ru.alox1d.wordnote.huawei.ui.scenes.textrecognition.TextRecognitionActivity
 import toothpick.ktp.KTP
 import toothpick.ktp.delegate.inject
 import toothpick.smoothie.lifecycle.closeOnDestroy
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.*
 
 abstract class TaskDialog() : DialogFragment() {
+    private var hasSensitiveContent = false
+    private var restoredDraft: Bundle? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        restoredDraft = savedInstanceState?.getBundle(DRAFT_STATE)
+        isTitleImageRecognition = savedInstanceState?.getBoolean("ocr_title") == true
+        isDescriptionImageRecognition = savedInstanceState?.getBoolean("ocr_body") == true
+        isTitleVoiceRecognition = savedInstanceState?.getBoolean("voice_title") == true
+        isDescriptionVoiceRecognition = savedInstanceState?.getBoolean("voice_body") == true
+        hasSensitiveContent = savedInstanceState?.getBoolean(SENSITIVE_DRAFT) == true ||
+                (arguments?.getInt("is_hidden", ModelTask.HIDDEN_FALSE) ?: ModelTask.HIDDEN_FALSE) != ModelTask.HIDDEN_FALSE
+    }
+
+    private fun rememberSensitivity() {
+        if ((arguments?.getInt("is_hidden", ModelTask.HIDDEN_FALSE) ?: ModelTask.HIDDEN_FALSE) != ModelTask.HIDDEN_FALSE ||
+            (::switchHidden.isInitialized && switchHidden.isChecked)) {
+            hasSensitiveContent = true
+        }
+        if (hasSensitiveContent) dialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+    }
+
+    fun refreshHiddenNotesVisibility(): Boolean {
+        rememberSensitivity()
+        val currentDialog = dialog ?: return false
+        if (hasSensitiveContent && (!WordNoteApp.isHiddenNotesUnlocked || !WordNoteApp.isActivityVisible)) {
+            currentDialog.hide()
+            return false
+        }
+        currentDialog.show()
+        return true
+    }
+
+    override fun onStart() {
+        // DialogFragment.onStart shows its window. Protect it before that call,
+        // then hide a locked draft synchronously before the first frame.
+        rememberSensitivity()
+        super.onStart()
+        refreshHiddenNotesVisibility()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshHiddenNotesVisibility()
+    }
+
+    override fun onPause() {
+        rememberSensitivity()
+        if (hasSensitiveContent) dialog?.hide()
+        super.onPause()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        rememberSensitivity()
+        outState.putBoolean(SENSITIVE_DRAFT, hasSensitiveContent)
+        if (::editor.isInitialized && ::calendar.isInitialized) {
+            outState.putBundle(DRAFT_STATE, Bundle().apply {
+                putString("title", etTitle.text.toString())
+                putString("content", editor.contentAsSerialized)
+                putString("date_text", etDate.text.toString())
+                putString("time_text", etTime.text.toString())
+                putLong("calendar", calendar.timeInMillis)
+                putInt("priority", container.findViewById<android.widget.Spinner>(R.id.spDialogTaskPriority).selectedItemPosition)
+                putBoolean("hidden", switchHidden.isChecked)
+            })
+        }
+        outState.putBoolean("ocr_title", isTitleImageRecognition)
+        outState.putBoolean("ocr_body", isDescriptionImageRecognition)
+        outState.putBoolean("voice_title", isTitleVoiceRecognition)
+        outState.putBoolean("voice_body", isDescriptionVoiceRecognition)
+        super.onSaveInstanceState(outState)
+    }
+
 
     protected lateinit var editor: Editor
     protected lateinit var inflater: LayoutInflater
@@ -104,7 +175,6 @@ abstract class TaskDialog() : DialogFragment() {
             colorPickerDialogBuilder.show()
         }
         container.findViewById<View>(R.id.action_insert_image).setOnClickListener {
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WordNoteApp.IMAGE_PICKED)
             editor.openImagePicker()
         }
         container.findViewById<View>(R.id.action_recognize_image).setOnClickListener {
@@ -129,21 +199,13 @@ abstract class TaskDialog() : DialogFragment() {
             }
 
             override fun onUpload(image: Bitmap, uuid: String) {
-                /**
-                 * Do your upload here from the bitmap received and all onImageUploadComplete(String url); to insert the result url to
-                 * let the editor know the upload has completed
-                 */
-                var tempUri: Uri? = null
                 try {
-                    tempUri = ImageUtils.saveImage(image, context, "WordNote/")
-                } catch (e: FileNotFoundException) {
-                    Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show()
+                    val imageFile = AttachmentStore(requireContext()).saveBitmap(image)
+                    editor.onImageUploadComplete(imageFile.path, uuid)
+                } catch (_: Exception) {
+                    editor.onImageUploadFailed(uuid)
+                    Toast.makeText(context, R.string.image_save_failed, Toast.LENGTH_LONG).show()
                 }
-                val localUrl = ImageUtils.getRealPathFromURI(tempUri, context)
-
-                Toast.makeText(context, requireActivity().resources.getString(R.string.image_is_saved) + localUrl, Toast.LENGTH_LONG).show()
-                editor.onImageUploadComplete(localUrl, uuid)
-                // WHEN FAILED editor.onImageUploadFailed(uuid);
             }
 
             override fun onRenderMacro(name: String, props: Map<String, Any>, index: Int): View? {
@@ -153,24 +215,51 @@ abstract class TaskDialog() : DialogFragment() {
     }
 
     protected fun recognizeImage() {
-        // Text recognition
-        val permission = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
-        ActivityCompat.requestPermissions(requireActivity(), permission, 1)
+        if (huaweiTextRecognitionService.checkPermissions()) startImageRecognition()
+        else requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_REQUEST)
+    }
 
-        if (huaweiTextRecognitionService.checkPermissions()) {
-            startActivityForResult(Intent(requireActivity(), TextRecognitionActivity::class.java), TextRecognitionActivity.REQUEST)
+    private fun startImageRecognition() {
+        startActivityForResult(Intent(requireActivity(), TextRecognitionActivity::class.java), TextRecognitionActivity.REQUEST)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val granted = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+        when (requestCode) {
+            CAMERA_PERMISSION_REQUEST -> if (granted) startImageRecognition() else {
+                isTitleImageRecognition = false
+                isDescriptionImageRecognition = false
+            }
+            MICROPHONE_PERMISSION_REQUEST -> if (granted) asrService.startASR() else {
+                isTitleVoiceRecognition = false
+                isDescriptionVoiceRecognition = false
+            }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 100) {
+            if (isTitleVoiceRecognition || isDescriptionVoiceRecognition) {
+                val text = data?.getStringExtra(MLAsrCaptureConstants.ASR_RESULT)
+                if (resultCode == MLAsrCaptureConstants.ASR_SUCCESS && text != null) {
+                    if (isTitleVoiceRecognition) processTitle(text) else setDescription(text)
+                } else if (resultCode == MLAsrCaptureConstants.ASR_FAILURE) {
+                    Toast.makeText(context, R.string.failed_to_get_data, Toast.LENGTH_SHORT).show()
+                }
+                isTitleVoiceRecognition = false
+                isDescriptionVoiceRecognition = false
+            }
+            return
+        }
         if (requestCode == editor.PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null) {
             val uri = data.data
             try {
                 val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
                 editor.insertImage(bitmap)
             } catch (e: IOException) {
-                Toast.makeText(requireActivity().applicationContext, e.message, Toast.LENGTH_SHORT).show()
-                e.printStackTrace()
+                Toast.makeText(requireContext(), R.string.image_save_failed, Toast.LENGTH_SHORT).show()
             }
         } else if (requestCode == TextRecognitionActivity.REQUEST && resultCode == Activity.RESULT_OK) {
             val text = data?.extras?.getString(BaseTextRecognitionActivity.ML_TEXT)
@@ -186,20 +275,17 @@ abstract class TaskDialog() : DialogFragment() {
             //Toast.makeText(getActivity().getApplicationContext(), "Cancelled", Toast.LENGTH_SHORT).show();
             // editor.RestoreState();
         }
-        isDescriptionImageRecognition = false
-        isTitleImageRecognition = false
+        if (requestCode == TextRecognitionActivity.REQUEST) {
+            isDescriptionImageRecognition = false
+            isTitleImageRecognition = false
+        }
     }
 
     private fun setDescription(text: String?) {
-        val editedDescription = "<p>" + text?.replace("\n", "</br>")
-        val currentDescription = editor.content
-        if (currentDescription.nodes[0].content[0] == "") {
-            editor.clearAllContents()
-            editor.render(editedDescription)
-            editor.content.nodes[0].content.removeAt(0);
-        } else {
-            editor.render(editedDescription)
-        }
+        if (text.isNullOrEmpty()) return
+        // Recognition returns plain text, including characters that are meaningful in HTML.
+        val escaped = android.text.TextUtils.htmlEncode(text).replace("\n", "<br>")
+        editor.render("<p>$escaped</p>")
     }
 
     private fun fixBottomButtons(alertDialog: AlertDialog) {
@@ -248,22 +334,8 @@ abstract class TaskDialog() : DialogFragment() {
     }
 
     protected fun recognizeVoice() {
-        val permission = arrayOf(Manifest.permission.INTERNET, Manifest.permission.RECORD_AUDIO)
-        ActivityCompat.requestPermissions(requireActivity(), permission, 1)
-
-        if (asrService.checkPermissions()) {
-            (activity as TasksActivity).setASRListener { text: String? ->
-                if (isTitleVoiceRecognition) {
-                    processTitle(text)
-                } else if (isDescriptionVoiceRecognition) {
-                    setDescription(text)
-                }
-                isDescriptionVoiceRecognition = false
-                isTitleVoiceRecognition = false
-            }
-            asrService.startASR()
-
-        }
+        if (asrService.checkPermissions()) asrService.startASR()
+        else requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), MICROPHONE_PERMISSION_REQUEST)
     }
 
     private fun processTitle(text: String?) {
@@ -273,8 +345,21 @@ abstract class TaskDialog() : DialogFragment() {
 
 
     protected fun setupAlertDialog(builder: AlertDialog.Builder): AlertDialog {
+        restoredDraft?.let { state ->
+            etTitle.setText(state.getString("title"))
+            editor.clearAllContents()
+            editor.render(editor.getContentDeserialized(state.getString("content")))
+            etDate.setText(state.getString("date_text"))
+            etTime.setText(state.getString("time_text"))
+            calendar.timeInMillis = state.getLong("calendar")
+            container.findViewById<android.widget.Spinner>(R.id.spDialogTaskPriority).setSelection(state.getInt("priority"))
+            switchHidden.isChecked = state.getBoolean("hidden")
+        }
+        restoredDraft = null
         val alertDialog = builder.create()
         alertDialog.window!!.setBackgroundDrawableResource(R.drawable.dialog_background)
+        rememberSensitivity()
+        if (hasSensitiveContent) alertDialog.window!!.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         alertDialog.setOnShowListener { dialog ->
             val positiveButton = (dialog as AlertDialog).getButton(DialogInterface.BUTTON_POSITIVE)
             if (etTitle.length() == 0) {
@@ -324,6 +409,8 @@ abstract class TaskDialog() : DialogFragment() {
 
     protected fun setHiddenState(it: Boolean, task: ModelTask) {
         if (it) {
+            hasSensitiveContent = true
+            dialog?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
             if (WordNoteApp.isHiddenNotesUnlocked)
                 task.isHidden = ModelTask.HIDDEN_TRUE_UNLOCKED else task.isHidden = ModelTask.HIDDEN_TRUE
         } else {
@@ -354,5 +441,12 @@ abstract class TaskDialog() : DialogFragment() {
                 }
             }
         }
+    }
+
+    private companion object {
+        const val SENSITIVE_DRAFT = "sensitive_private_draft"
+        const val DRAFT_STATE = "task_editor_draft"
+        const val CAMERA_PERMISSION_REQUEST = 2101
+        const val MICROPHONE_PERMISSION_REQUEST = 2102
     }
 }

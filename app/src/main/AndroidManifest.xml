@@ -1,27 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.alox1d.wordnote.huawei">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="com.huawei.mlkit.asr.permission" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".WordNoteApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/no_automatic_backup"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:process=":remote"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.WordNote">
+
+        <provider
+            android:name=".helpers.CameraFileProvider"
+            android:authorities="${applicationId}.camera"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/camera_file_paths" />
+        </provider>
 
         <receiver
             android:name=".ui.widgets.ButtonsWidget"
@@ -37,9 +52,18 @@
 
         <service
             android:name=".device.service.drive.BackupForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
             android:enabled="true"
             android:permission="android.permission.FOREGROUND_SERVICE">
         </service>
+
+        <service
+            android:name=".device.service.drive.BackupJobService"
+            tools:targetApi="21"
+            android:enabled="@bool/backup_jobs_enabled"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity
             android:name=".ui.scenes.tasks.TasksActivity"
@@ -66,11 +90,7 @@
         <receiver
             android:name="ru.alox1d.wordnote.huawei.device.alarm.AlarmReceiver"
             android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
+            android:exported="false" />
 
         <receiver
             android:name="ru.alox1d.wordnote.huawei.device.alarm.AlarmSetter"

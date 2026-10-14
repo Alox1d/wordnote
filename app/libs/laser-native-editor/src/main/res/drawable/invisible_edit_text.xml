@@ -2,7 +2,7 @@
 <selector
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    //You can change the color of the edit text here which removes the border line as well
+    <!-- You can change the color of the edit text here to remove the border line. -->
     <item android:state_focused="true" >
         <shape android:shape="rectangle">
             <gradient

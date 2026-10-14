@@ -53,8 +53,8 @@ class LocalTextTransactor(handler: Handler, private val mContext: Context) : Bas
                         "zh"
                     } else {
                         val localLang = Locale.getDefault().language
-                        if (localLang.toLowerCase(Locale.ROOT) == "russian"
-                            || localLang.toLowerCase(Locale.ROOT) == "ru"
+                        if (localLang.lowercase(Locale.ROOT) == "russian"
+                            || localLang.lowercase(Locale.ROOT) == "ru"
                         ) "ru" else "en"
                     }
                     Log.d(TAG, "default value!")

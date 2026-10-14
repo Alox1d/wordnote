@@ -6,6 +6,7 @@
     style="@style/ThemeOverlay.WordNote.AppWidgetContainer"
     >
 
+    <!-- RemoteViews uses platform ImageButton; PNGs also render on API 19. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,7 +33,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
-                android:src="@drawable/ic_add_circle_white_24dp" />
+                android:src="@drawable/widget_add" />
 
             <ImageButton
                 android:id="@+id/widget_recognize_voice"
@@ -41,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
 
-                android:src="@drawable/ic_baseline_keyboard_voice_24" />
+                android:src="@drawable/widget_voice" />
 
             <ImageButton
                 android:id="@+id/widget_recognize_image"

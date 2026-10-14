@@ -8,7 +8,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinator"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         tools:context="com.huawei.wordnote.ru.huawei.wordnote.ui.scenes.main.MainActivity">
 
         <!-- TODO BACKGROUND LOGO (TOP or on ViewPager)
@@ -82,22 +82,9 @@
             style="@style/Widget.MaterialComponents.FloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
+            android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            app:layout_anchor="@id/transparent_view"
-            app:layout_anchorGravity="top|end"
             app:srcCompat="@drawable/ic_add_circle_white_24dp" />
-
-        <!--        BEST SOLUTION FOR AD-->
-        <View
-            android:id="@+id/transparent_view"
-            android:layout_width="0dp"
-            android:layout_height="16dp"
-            android:layout_gravity="end"
-            android:background="@android:color/transparent"
-            app:layout_anchor="@id/banner"
-            app:layout_anchorGravity="top|end"
-            app:useCompatPadding="false" />
 
         <com.huawei.hms.ads.banner.BannerView xmlns:hwads="http://schemas.android.com/apk/res-auto"
             android:id="@+id/banner"
@@ -107,10 +94,7 @@
             android:layout_centerHorizontal="true"
             app:layout_anchor="@id/pager"
             app:layout_anchorGravity="bottom"
-            hwads:adId="d5ju9vvb05"
             hwads:bannerSize="BANNER_SIZE_320_50" />
-        <!--        TEST ID-->
-        <!--        hwads:adId="testw6vs28auh3"-->
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </FrameLayout>

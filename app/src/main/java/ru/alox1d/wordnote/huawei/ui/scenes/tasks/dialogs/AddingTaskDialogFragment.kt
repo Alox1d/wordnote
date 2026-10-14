@@ -11,6 +11,7 @@ import com.github.irshulx.Editor
 import com.github.irshulx.models.EditorType
 import com.google.android.material.textfield.TextInputLayout
 import ru.alox1d.wordnote.huawei.R
+import ru.alox1d.wordnote.huawei.ui.scenes.tasks.TasksActivity
 import ru.alox1d.wordnote.huawei.device.alarm.AlarmHelper
 import ru.alox1d.wordnote.huawei.domain.model.ModelTask
 import ru.alox1d.wordnote.huawei.domain.model.TASK_MODE
@@ -47,7 +48,11 @@ class AddingTaskDialogFragment() : TaskDialog() {
     }
 
     private fun onTaskAdded(newTask: ModelTask) {
-        for (l in addingTaskListeners) l.onTaskAdd(newTask)
+        if (addingTaskListeners.isEmpty()) {
+            (activity as? TasksActivity)?.onTaskAdded(newTask)
+        } else {
+            for (l in addingTaskListeners) l.onTaskAdd(newTask)
+        }
     }
 
     private fun onTaskAddingCancel() {
@@ -83,7 +88,7 @@ class AddingTaskDialogFragment() : TaskDialog() {
         builder.setView(container)
         val task = ModelTask()
         val priorityAdapter = ArrayAdapter(
-            activity!!,
+            requireActivity(),
             android.R.layout.simple_spinner_dropdown_item,  /*ModelTask.PRIORITY_LEVELS*/
             resources.getStringArray(R.array.priorities)
         )
@@ -91,7 +96,7 @@ class AddingTaskDialogFragment() : TaskDialog() {
         spPriority.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
-                view: View,
+                view: View?,
                 position: Int,
                 id: Long
             ) {
@@ -157,11 +162,11 @@ class AddingTaskDialogFragment() : TaskDialog() {
             onTaskAddingCancel()
             dialog.cancel()
         }
-        if (mode == TaskModes.VOICE_RECOG.ordinal) {
+        if (savedInstanceState == null && mode == TaskModes.VOICE_RECOG.ordinal) {
             isTitleVoiceRecognition = true
             recognizeVoice()
         }
-        if (mode == TaskModes.IMAGE_RECOG.ordinal) {
+        if (savedInstanceState == null && mode == TaskModes.IMAGE_RECOG.ordinal) {
             isDescriptionImageRecognition = true
             recognizeImage()
         }

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import com.github.irshulx.Editor
 import com.google.android.material.textfield.TextInputLayout
 import ru.alox1d.wordnote.huawei.R
+import ru.alox1d.wordnote.huawei.ui.scenes.tasks.TasksActivity
 import ru.alox1d.wordnote.huawei.device.alarm.AlarmHelper.Companion.instance
 import ru.alox1d.wordnote.huawei.domain.model.ModelTask
 import ru.alox1d.wordnote.huawei.helpers.util.Utils
@@ -32,8 +33,10 @@ class EditTaskDialogFragment : TaskDialog() {
     }
 
     private fun onTaskEdited(updatedTask: ModelTask) {
-        for (l in editingTaskListeners) {
-            l.onTaskEdited(updatedTask)
+        if (editingTaskListeners.isEmpty()) {
+            (activity as? TasksActivity)?.onTaskEdited(updatedTask)
+        } else {
+            for (l in editingTaskListeners) l.onTaskEdited(updatedTask)
         }
     }
 
@@ -53,11 +56,12 @@ class EditTaskDialogFragment : TaskDialog() {
         val descriptionHTML = args.getString("descriptionHTML")
         val date = args.getLong("date", 0)
         val priority = args.getInt("priority", 0)
+        val status = args.getInt("status", ModelTask.STATUS_CURRENT)
         val timeStamp = args.getLong("time_stamp", 0)
         val isHidden = args.getInt("is_hidden", 0)
 
-        val task = ModelTask(title, description, descriptionHTML, date, priority, 0, timeStamp, isHidden)
-        val builder = AlertDialog.Builder(activity!!, R.style.WordNote_Task_Dialog_Alert)
+        val task = ModelTask(title, description, descriptionHTML, date, priority, status, timeStamp, isHidden)
+        val builder = AlertDialog.Builder(requireActivity(), R.style.WordNote_Task_Dialog_Alert)
         editor = container.findViewById<View>(R.id.editor_dialogDescription) as Editor
         val tilTitle: TextInputLayout = container.findViewById(R.id.til_DialogTaskTitle)
         val etTitle = tilTitle.editText
@@ -82,12 +86,12 @@ class EditTaskDialogFragment : TaskDialog() {
         tilDate.hint = resources.getString(R.string.task_date)
         tilTime.hint = resources.getString(R.string.task_time)
         builder.setView(container)
-        val priorityAdapter = ArrayAdapter(activity!!,
+        val priorityAdapter = ArrayAdapter(requireActivity(),
                 android.R.layout.simple_spinner_dropdown_item, resources.getStringArray(R.array.priorities))
         spPriority.adapter = priorityAdapter
         spPriority.setSelection(task.priority)
         spPriority.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 task.priority = position
             }
 
@@ -126,13 +130,11 @@ class EditTaskDialogFragment : TaskDialog() {
             task.title = etTitle.text.toString()
             task.description = editor.contentAsSerialized
             task.descriptionHTML = editor.contentAsHTML
-            task.status = ModelTask.STATUS_CURRENT
             if (etDate.length() != 0 || etTime.length() != 0) {
                 task.date = calendar.timeInMillis
                 val alarmHelper = instance
                 alarmHelper.setTaskAlarm(task)
             }
-            task.status = ModelTask.STATUS_CURRENT
             onTaskEdited(task)
             dialog.dismiss()
         }
@@ -150,6 +152,7 @@ class EditTaskDialogFragment : TaskDialog() {
             args.putString("descriptionHTML", task.descriptionHTML)
             args.putLong("date", task.date)
             args.putInt("priority", task.priority)
+            args.putInt("status", task.status)
             args.putLong("time_stamp", task.timeStamp)
             args.putInt("is_hidden", task.isHidden)
             editTaskDialogFragment.arguments = args

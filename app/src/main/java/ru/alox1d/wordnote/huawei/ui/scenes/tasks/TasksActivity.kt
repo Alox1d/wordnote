@@ -1,5 +1,10 @@
 package ru.alox1d.wordnote.huawei.ui.scenes.tasks
 
+import ru.alox1d.wordnote.huawei.helpers.applySystemInsets
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.animation.LayoutTransition
 import android.app.ActivityOptions
 import android.appwidget.AppWidgetManager
@@ -10,6 +15,7 @@ import android.os.PersistableBundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +27,6 @@ import androidx.viewpager.widget.ViewPager
 import com.example.toothpick.annotation.ApplicationScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
-import com.huawei.hms.mlplugin.asr.MLAsrCaptureConstants
 import ru.alox1d.wordnote.huawei.R
 import ru.alox1d.wordnote.huawei.WordNoteApp
 import ru.alox1d.wordnote.huawei.WordNoteApp.Companion.activityPaused
@@ -42,6 +47,7 @@ import ru.alox1d.wordnote.huawei.ui.scenes.tasks.CurrentTaskFragment.OnTaskDoneL
 import ru.alox1d.wordnote.huawei.ui.scenes.tasks.DoneTaskFragment.OnTaskRestoreListener
 import ru.alox1d.wordnote.huawei.ui.scenes.tasks.adapters.TabAdapter
 import ru.alox1d.wordnote.huawei.ui.scenes.tasks.dialogs.AddingTaskDialogFragment
+import ru.alox1d.wordnote.huawei.ui.scenes.tasks.dialogs.TaskDialog
 import ru.alox1d.wordnote.huawei.ui.scenes.tasks.dialogs.AddingTaskDialogFragment.AddingTaskListener
 import ru.alox1d.wordnote.huawei.ui.widgets.ButtonsWidget.Companion.WIDGET_REQUEST_CODE
 import ru.alox1d.wordnote.huawei.ui.widgets.ButtonsWidget.Companion.WIDGET_REQUEST_CODE_ADD
@@ -64,20 +70,31 @@ class TasksActivity : AppCompatActivity() {
     var searchView: SearchView? = null
 //    private var taskDatabase: TaskDatabase? = null
     var addingTaskDialogFragment: AddingTaskDialogFragment? = null
-    private var mASRListener: ((String?) -> Unit)? = null
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     private val mFIDOService: IFIDOService by inject()
     private val adsService: IAdsService by inject()
+    private var hiddenNotesActivityResumed = false
+    private var hiddenAuthenticationPending = false
+    private var hiddenAuthenticationRequest = 0L
+    private var unlockOnResume = false
+    private var sensitiveWindowShown = false
 
-
-    fun setASRListener(mASRListener: (String?) -> Unit) {
-        this.mASRListener = mASRListener
+    private val taskDoneListener = object : OnTaskDoneListener {
+        override fun onTaskDone(task: ModelTask) { doneTaskFragment.addTask(task, false) }
+    }
+    private val taskRestoreListener = object : OnTaskRestoreListener {
+        override fun onTaskRestore(task: ModelTask) { currentTaskFragment.addTask(task, false) }
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        WordNoteApp.isHiddenNotesUnlocked = false
+        sensitiveWindowShown = savedInstanceState?.getBoolean(SENSITIVE_WINDOW_SHOWN) == true
+        if (sensitiveWindowShown) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        applySystemInsets()
 
         loadPreferences()
         setDI()
@@ -85,6 +102,10 @@ class TasksActivity : AppCompatActivity() {
         setAlarm()
 //        setDB()
         setUI()
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1003)
+        }
         onNewIntent(intent)
     }
 
@@ -148,7 +169,12 @@ class TasksActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {}
     override fun onResume() {
         super.onResume()
+        hiddenNotesActivityResumed = true
         activityResumed()
+        bindTaskFragments()
+        val shouldUnlock = unlockOnResume
+        unlockOnResume = false
+        setHiddenNotesUnlocked(shouldUnlock)
         setSearchView()
         animateSearchView()
     }
@@ -172,8 +198,21 @@ class TasksActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        super.onPause()
+        hiddenNotesActivityResumed = false
         activityPaused()
+        setHiddenNotesUnlocked(false)
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        invalidateHiddenAuthentication()
+        WordNoteApp.isHiddenNotesUnlocked = false
+        super.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(SENSITIVE_WINDOW_SHOWN, sensitiveWindowShown)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -241,23 +280,93 @@ class TasksActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_hidden_notes -> {
-                if (!WordNoteApp.isHiddenNotesUnlocked) {
-                    mFIDOService.fingerAuthenticateWithoutCryptoObject { result ->
-                        WordNoteApp.isHiddenNotesUnlocked = true
-                        for (frag in taskFragments) {
-                            frag.addHiddenTasks()
-                        }
-                    }
+                if (WordNoteApp.isHiddenNotesUnlocked) {
+                    invalidateHiddenAuthentication()
+                    setHiddenNotesUnlocked(false)
                 } else {
-                    WordNoteApp.isHiddenNotesUnlocked = false
-                    for (frag in taskFragments) {
-                        frag.removeHiddenTasks()
-                    }
+                    authenticateHiddenNotes()
                 }
-
+                return true
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun authenticateHiddenNotes() {
+        if (hiddenAuthenticationPending) return
+        hiddenAuthenticationPending = true
+        val request = ++hiddenAuthenticationRequest
+        try {
+            mFIDOService.fingerAuthenticateWithoutCryptoObject { success ->
+                if (request != hiddenAuthenticationRequest || !hiddenAuthenticationPending || isDestroyed || isFinishing) {
+                    return@fingerAuthenticateWithoutCryptoObject
+                }
+                hiddenAuthenticationPending = false
+                if (!success) {
+                    unlockOnResume = false
+                    setHiddenNotesUnlocked(false)
+                } else if (hiddenNotesActivityResumed) {
+                    setHiddenNotesUnlocked(true)
+                } else {
+                    // The system PIN screen may stop this activity. Keep content
+                    // locked until it returns; a destroyed activity cannot unlock.
+                    unlockOnResume = true
+                }
+            }
+        } catch (error: RuntimeException) {
+            hiddenAuthenticationPending = false
+            unlockOnResume = false
+            setHiddenNotesUnlocked(false)
+            Toast.makeText(this, R.string.auth_failed, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun invalidateHiddenAuthentication() {
+        hiddenAuthenticationRequest++
+        hiddenAuthenticationPending = false
+        unlockOnResume = false
+    }
+
+    private fun setHiddenNotesUnlocked(unlocked: Boolean) {
+        if (unlocked) {
+            sensitiveWindowShown = true
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+        WordNoteApp.isHiddenNotesUnlocked = unlocked
+        taskFragments.forEach { it.refreshTasks() }
+        supportFragmentManager.fragments.filterIsInstance<TaskDialog>().forEach {
+            it.refreshHiddenNotesVisibility()
+        }
+    }
+
+    private fun bindTaskFragments() {
+        val liveFragments = supportFragmentManager.fragments
+        currentTaskFragment = liveFragments.filterIsInstance<CurrentTaskFragment>().firstOrNull { it.isAdded }
+            ?: currentTaskFragment
+        doneTaskFragment = liveFragments.filterIsInstance<DoneTaskFragment>().firstOrNull { it.isAdded }
+            ?: doneTaskFragment
+        taskFragments.clear()
+        taskFragments.add(currentTaskFragment)
+        taskFragments.add(doneTaskFragment)
+        currentTaskFragment.addListener(taskDoneListener)
+        doneTaskFragment.addListener(taskRestoreListener)
+    }
+
+    fun onTaskAdded(task: ModelTask) {
+        currentTaskFragment.addTask(task, true)
+        taskFragments.forEach { it.refreshTasks() }
+    }
+
+    fun onTaskEdited(task: ModelTask) {
+        currentTaskFragment.saveEditedTask(task)
+        doneTaskFragment.refreshTasks()
+    }
+
+    fun showExistingTaskDialog(): Boolean {
+        val existing = supportFragmentManager.fragments.filterIsInstance<TaskDialog>()
+            .firstOrNull { it.isAdded && !it.isRemoving } ?: return false
+        if (!existing.refreshHiddenNotesVisibility()) authenticateHiddenNotes()
+        return true
     }
 
     private fun TasksActivity.startBackupActivity() {
@@ -285,42 +394,15 @@ class TasksActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == BackupActivity.REQUEST_CODE_OK && resultCode == BackupActivity.REQUEST_CODE_OK) {
+            invalidateHiddenAuthentication()
+            bindTaskFragments()
+            setHiddenNotesUnlocked(false)
+        }
         for (fragment in supportFragmentManager.fragments) {
             fragment.onActivityResult(requestCode, resultCode, data)
             when (resultCode) {
                 BackupActivity.REQUEST_CODE_OK -> {
-                }
-            }
-        }
-        if (requestCode == 100) {
-            when (resultCode) {
-                MLAsrCaptureConstants.ASR_SUCCESS -> if (data != null) {
-                    val bundle = data.extras
-                    if (bundle != null && bundle.containsKey(MLAsrCaptureConstants.ASR_RESULT)) {
-                        val text = bundle.getString(MLAsrCaptureConstants.ASR_RESULT).toString()
-                        mASRListener!!.invoke(text)
-                    }
-                }
-                MLAsrCaptureConstants.ASR_FAILURE -> if (data != null) {
-                    val bundle = data.extras
-                    if (bundle != null && bundle.containsKey(MLAsrCaptureConstants.ASR_ERROR_CODE)) {
-                        val errorCode = bundle.getInt(MLAsrCaptureConstants.ASR_ERROR_CODE)
-                        Toast.makeText(
-                            this,
-                            getString(R.string.error_code) + errorCode,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                    if (bundle != null && bundle.containsKey(MLAsrCaptureConstants.ASR_ERROR_MESSAGE)) {
-                        val errorMsg = bundle.getString(MLAsrCaptureConstants.ASR_ERROR_MESSAGE)
-                        Toast.makeText(
-                            this,
-                            getString(R.string.error_code) + errorMsg,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                } else {
-                    Toast.makeText(this, R.string.failed_to_get_data, Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -351,27 +433,9 @@ class TasksActivity : AppCompatActivity() {
         })
         currentTaskFragment =
             tabAdapter!!.getItem(TabAdapter.CURRENT_TASK_FRAGMENT_POSITION) as CurrentTaskFragment
-        currentTaskFragment.addListener(object : OnTaskDoneListener {
-            override fun onTaskDone(task: ModelTask) {
-                for (frag in taskFragments) {
-                    if (frag is DoneTaskFragment) {
-                        // нет смысла в массиве TaskFragment'ов, т.к. всего 2 фрагмента
-                        doneTaskFragment.addTask(task, false)
-                    }
-                }
-            }
-        })
-        taskFragments.add(currentTaskFragment)
         doneTaskFragment =
             tabAdapter!!.getItem(TabAdapter.DONE_TASK_FRAGMENT_POSITION) as DoneTaskFragment
-        doneTaskFragment.addListener(object : OnTaskRestoreListener {
-            override fun onTaskRestore(task: ModelTask) {
-                for (frag in taskFragments) {
-                    (frag as? CurrentTaskFragment)?.addTask(task, false)
-                }
-            }
-        })
-        taskFragments.add(doneTaskFragment)
+        bindTaskFragments()
         val fab = findViewById<View>(R.id.fab) as FloatingActionButton
         fab.setOnClickListener {
             showAddTaskDialog()
@@ -380,12 +444,11 @@ class TasksActivity : AppCompatActivity() {
     }
 
     private fun showAddTaskDialog(mode: TaskModes = TaskModes.NONE) {
+        if (showExistingTaskDialog()) return
         addingTaskDialogFragment = AddingTaskDialogFragment.newInstance(mode)
         addingTaskDialogFragment!!.addListener(object : AddingTaskListener {
             override fun onTaskAdd(newTask: ModelTask) {
-                for (frag in taskFragments) {
-                    (frag as? CurrentTaskFragment)?.addTask(newTask, true)
-                }
+                this@TasksActivity.onTaskAdded(newTask)
             }
 
             override fun onTaskAddingCancel() {}
@@ -423,6 +486,7 @@ class TasksActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val SENSITIVE_WINDOW_SHOWN = "sensitive_window_shown"
         private const val SEARCHVIEW_APPEAR_DURATION = 200
         const val CURRENT_TASKS = "CURRENT_TASKS"
         const val DONE_TASKS = "DONE_TASKS"

@@ -140,8 +140,9 @@ public class ListItemExtensions extends EditorComponent {
         }
         if (editorCore.getRenderType() == RenderType.Editor) {
             editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, componentsWrapper.getInputExtensions().getNormalTextSize());
-            if (!textColor.equals(componentsWrapper.getInputExtensions().getDefaultTextColor()))
-            editText.setTextColor(Color.parseColor(textColor));
+            if (!textColor.equals(componentsWrapper.getInputExtensions().getDefaultTextColor())) {
+                editText.setTextColor(Color.parseColor(textColor));
+            }
             if(this.lineSpacing != -1) componentsWrapper.getInputExtensions().setLineSpacing(editText, this.lineSpacing);
             EditorControl tag = editorCore.createTag(isOrdered ? EditorType.OL_LI : EditorType.UL_LI);
             if (!textColor.equals(componentsWrapper.getInputExtensions().getDefaultTextColor()))

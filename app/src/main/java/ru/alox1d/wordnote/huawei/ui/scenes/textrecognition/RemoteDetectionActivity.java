@@ -1,7 +1,8 @@
 package ru.alox1d.wordnote.huawei.ui.scenes.textrecognition;
 
 import android.app.Dialog;
-import android.content.ContentValues;
+import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -27,7 +28,12 @@ import android.widget.Toast;
 import com.huawei.hms.mlsdk.document.MLDocument;
 import com.huawei.hms.mlsdk.text.MLText;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+
+import androidx.core.content.FileProvider;
+import androidx.core.view.OneShotPreDrawListener;
 
 import ru.alox1d.wordnote.huawei.R;
 import ru.alox1d.wordnote.huawei.device.service.tr.callback.CouldInfoResultCallBack;
@@ -45,6 +51,7 @@ public final class RemoteDetectionActivity extends BaseTextRecognitionActivity i
     private static final String TAG = "RemoteDetectionActivity";
 
     private static final String KEY_IMAGE_URI = "KEY_IMAGE_URI";
+    private static final String KEY_AWAITING_IMAGE_RESULT = "KEY_AWAITING_IMAGE_RESULT";
     private static final String KEY_IMAGE_MAX_WIDTH =
             "KEY_IMAGE_MAX_WIDTH";
     private static final String KEY_IMAGE_MAX_HEIGHT =
@@ -64,6 +71,7 @@ public final class RemoteDetectionActivity extends BaseTextRecognitionActivity i
     boolean isLandScape;
 
     private Uri imageUri;
+    private boolean awaitingImageResult;
     private Integer maxWidthOfImage;
     private Integer maxHeightOfImage;
     private ImageTransactor imageTransactor;
@@ -152,14 +160,8 @@ public final class RemoteDetectionActivity extends BaseTextRecognitionActivity i
         } catch (RuntimeException e) {
             Log.e(RemoteDetectionActivity.TAG, "Get intent value failed: " + e.getMessage());
         }
-        if (savedInstanceState != null) {
-            this.imageUri = savedInstanceState.getParcelable(RemoteDetectionActivity.KEY_IMAGE_URI);
-            if (this.imageUri != null) {
-                this.maxWidthOfImage = savedInstanceState.getInt(RemoteDetectionActivity.KEY_IMAGE_MAX_WIDTH);
-                this.maxHeightOfImage = savedInstanceState.getInt(RemoteDetectionActivity.KEY_IMAGE_MAX_HEIGHT);
-            }
-        }
         this.setContentView(R.layout.activity_remote_detection);
+        ru.alox1d.wordnote.huawei.helpers.SystemInsetsKt.applySystemInsets(this);
         this.initTitle();
         this.findViewById(R.id.back).setOnClickListener(this);
         this.preview = this.findViewById(R.id.still_preview);
@@ -173,9 +175,24 @@ public final class RemoteDetectionActivity extends BaseTextRecognitionActivity i
         this.createDialog();
         this.isLandScape = (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
         this.setStatusBar();
-        if (type == null) {
-            this.selectLocalImage();
-        } else if (type.equals(Constant.TYPE_SELECT_IMAGE)) {
+        resumeImageSelection(savedInstanceState, type);
+    }
+
+    void resumeImageSelection(Bundle savedInstanceState, String type) {
+        if (savedInstanceState != null) {
+            this.imageUri = savedInstanceState.getParcelable(RemoteDetectionActivity.KEY_IMAGE_URI);
+            this.awaitingImageResult = savedInstanceState.getBoolean(KEY_AWAITING_IMAGE_RESULT, false);
+            // The original external activity still owns a pending result. Preserve its URI and grant.
+            if (!this.awaitingImageResult && this.imageUri != null) {
+                OneShotPreDrawListener.add(this.preview, () -> {
+                    this.maxWidthOfImage = null;
+                    this.maxHeightOfImage = null;
+                    this.reloadAndDetectImage();
+                });
+            }
+            return;
+        }
+        if (type == null || type.equals(Constant.TYPE_SELECT_IMAGE)) {
             this.selectLocalImage();
         } else {
             this.startCamera();
@@ -243,6 +260,7 @@ public final class RemoteDetectionActivity extends BaseTextRecognitionActivity i
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(RemoteDetectionActivity.KEY_IMAGE_URI, this.imageUri);
+        outState.putBoolean(KEY_AWAITING_IMAGE_RESULT, this.awaitingImageResult);
         if (this.maxWidthOfImage != null) {
             outState.putInt(RemoteDetectionActivity.KEY_IMAGE_MAX_WIDTH, this.maxWidthOfImage);
         }
@@ -260,29 +278,61 @@ public final class RemoteDetectionActivity extends BaseTextRecognitionActivity i
     }
 
     private void startCamera() {
+        if (this.awaitingImageResult) return;
+        discardCameraImage();
         this.imageUri = null;
         this.preview.setImageBitmap(null);
-
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(this.getPackageManager()) != null) {
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Images.Media.TITLE, "New Picture");
-            values.put(MediaStore.Images.Media.DESCRIPTION, "From Camera");
-            this.imageUri = this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        File photo = null;
+        try {
+            File directory = new File(getCacheDir(), "ocr-camera");
+            if (!directory.isDirectory() && !directory.mkdirs()) {
+                throw new IOException("Unable to create private camera directory");
+            }
+            photo = File.createTempFile("wordnote-camera-", ".jpg", directory);
+            this.imageUri = FileProvider.getUriForFile(this, getPackageName() + ".camera", photo);
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, this.imageUri);
+            takePictureIntent.setClipData(ClipData.newRawUri("Camera image", this.imageUri));
+            takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            this.awaitingImageResult = true;
             this.startActivityForResult(takePictureIntent, RemoteDetectionActivity.REQUEST_TAKE_PHOTO);
+        } catch (IOException | ActivityNotFoundException | SecurityException error) {
+            this.awaitingImageResult = false;
+            if (photo != null) photo.delete();
+            this.imageUri = null;
+            Toast.makeText(this, R.string.failed_to_get_data, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void discardCameraImage() {
+        if (this.imageUri != null && (getPackageName() + ".camera").equals(this.imageUri.getAuthority())) {
+            getContentResolver().delete(this.imageUri, null, null);
+            revokeUriPermission(this.imageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         }
     }
 
     private void selectLocalImage() {
-        Intent intent = new Intent(Intent.ACTION_PICK, null);
-        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-        this.startActivityForResult(intent, RemoteDetectionActivity.REQUEST_SELECT_IMAGE);
+        if (this.awaitingImageResult) return;
+        discardCameraImage();
+        this.imageUri = null;
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        try {
+            this.awaitingImageResult = true;
+            this.startActivityForResult(intent, RemoteDetectionActivity.REQUEST_SELECT_IMAGE);
+        } catch (ActivityNotFoundException | SecurityException error) {
+            this.awaitingImageResult = false;
+            Toast.makeText(this, R.string.failed_to_get_data, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_TAKE_PHOTO || requestCode == REQUEST_SELECT_IMAGE) {
+            this.awaitingImageResult = false;
+        }
         if (requestCode == RemoteDetectionActivity.REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             this.reloadAndDetectImage();
         } else if (requestCode == RemoteDetectionActivity.REQUEST_TAKE_PHOTO && resultCode == RESULT_CANCELED) {
@@ -308,6 +358,8 @@ public final class RemoteDetectionActivity extends BaseTextRecognitionActivity i
         this.preview.setImageBitmap(this.imageBitmap);
         if (this.imageBitmap != null) {
             this.imageTransactor.process(this.imageBitmap, this.graphicOverlay);
+        } else {
+            this.handleGetDataFailed();
         }
     }
 
@@ -357,6 +409,7 @@ public final class RemoteDetectionActivity extends BaseTextRecognitionActivity i
             this.imageTransactor.stop();
             this.imageTransactor = null;
         }
+        if (isFinishing()) discardCameraImage();
         this.imageUri = null;
         BitmapUtils.recycleBitmap(this.bitmapCopy, this.bitmapCopyForTap, this.imageBitmap);
         if (this.mHandler != null) {

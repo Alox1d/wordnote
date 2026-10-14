@@ -77,68 +77,34 @@ class DoneTaskFragment : TaskFragment() {
     }
 
     override fun findTasks(text: String) {
+        currentSearchQuery = text
+        if (!isAdapterInitialized) return
         adapter.removeAllItems()
-        val tasks: MutableList<ModelTask> = ArrayList()
-        val query = ("(" + SELECTION_LIKE_TITLE
-                + " OR "
-                + SELECTION_LIKE_DESCRIPTION_HTML + ") AND "
-                + SELECTION_STATUS)
-        tasks.addAll(
-            mGetTasksUseCase.buildUseCase(
-                query, arrayOf(
-                    "%$text%", "%$text%",
-                    Integer.toString(ModelTask.STATUS_DONE)
-                ), TASK_DATE_COLUMN
-            )
-        )
-        for (i in tasks.indices) {
-            addTask(tasks[i], false)
-        }
+        val query = "($SELECTION_LIKE_TITLE OR $SELECTION_LIKE_DESCRIPTION_HTML) AND $SELECTION_STATUS"
+        mGetTasksUseCase.buildUseCase(
+            query, arrayOf("%$text%", "%$text%", ModelTask.STATUS_DONE.toString()), TASK_DATE_COLUMN
+        ).forEach { addTask(it, false) }
     }
 
-    override fun addTaskFromDB() {
-        adapter.removeAllItems()
-        val tasks: MutableList<ModelTask> = ArrayList()
-        tasks.addAll(
-            mGetTasksUseCase.buildUseCase(
-                SELECTION_STATUS,
-                arrayOf(Integer.toString(ModelTask.STATUS_DONE)),
-                TASK_DATE_COLUMN
-            )
-        )
-        for (i in tasks.indices) {
-            addTask(tasks[i], false)
-        }
-    }
+    override fun addTaskFromDB() = findTasks(currentSearchQuery)
 
     override fun addTask(newTask: ModelTask?, saveToDB: Boolean) {
-
-        var position = -1
-        if (newTask != null) {
-
-            for (i in 0 until adapter.itemCount) {
-                if (adapter.getItem(i).isTask) {
-                    val task = adapter.getItem(i) as ModelTask
-                    if (newTask.date < task.date) {
-                        position = i
-                        break
-                    }
-
-                }
+        if (newTask == null) return
+        if (isTaskVisible(newTask)) {
+            val position = (0 until adapter.itemCount).firstOrNull {
+                val existing = adapter.getItem(it) as? ModelTask
+                existing != null && newTask.date < existing.date
             }
-            if (position != -1) {
-                adapter.addItem(position, newTask)
-            } else {
-                adapter.addItem(newTask)
-            }
-            if (saveToDB) {
-                mAddTaskUseCase.buildUseCase(newTask)
-            }
+            if (position != null) adapter.addItem(position, newTask) else adapter.addItem(newTask)
+        }
+        if (saveToDB) {
+            if (newTask.isHidden == ModelTask.HIDDEN_TRUE_UNLOCKED) newTask.isHidden = ModelTask.HIDDEN_TRUE
+            mAddTaskUseCase.buildUseCase(newTask)
         }
     }
 
     override fun checkAdapter() {
-        if (adapter == null) {
+        if (!isAdapterInitialized) {
             adapter = DoneTaskAdapter()
             addTaskFromDB()
         }

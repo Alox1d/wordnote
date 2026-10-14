@@ -1,4 +1,11 @@
-include ':dateparser-release'
-include ':laser-native-editor'
-include ':app'
-project(':laser-native-editor').projectDir = new File(rootDir, 'app/libs/laser-native-editor/')
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'WordNote'
+include ':dateparser-release', ':laser-native-editor', ':app'
+project(':laser-native-editor').projectDir = file('app/libs/laser-native-editor')

@@ -273,99 +273,27 @@ public class Utils {
     }
 
     public static class ImageUtils {
-        public static Uri getImageUri(Context inContext, Bitmap inImage) {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-            String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-            return Uri.parse(path);
+        public static Uri getImageUri(Context context, Bitmap image) {
+            return Uri.fromFile(new ru.alox1d.wordnote.huawei.data.storage.AttachmentStore(context).saveBitmap(image));
         }
 
         public static String getRealPathFromURI(Uri uri, Context context) {
-            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-            cursor.moveToFirst();
-            int idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA); // MediaStore.Images.ImageColumns.DATA
-            return cursor.getString(idx);
-        }
-
-        public static boolean deleteImg(Context context, String imgPath) {
-
-            // Set up the projection (we only need the ID)
-            String[] projection = {MediaStore.Images.Media._ID};
-
-            // Match on the file path
-            String selection = MediaStore.Images.Media.DATA + " = ?";
-            String[] selectionArgs = new String[]{imgPath};
-
-            // Query for the ID of the media matching the file path
-            Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-            ContentResolver contentResolver = context.getContentResolver();
-            Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
-            if (c.moveToFirst()) {
-                // We found the ID. Deleting the item via the content provider will also remove the file
-                long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-                Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                contentResolver.delete(deleteUri, null, null);
-            } else {
-                // File not found in media store DB
-                return false;
-            }
-            c.close();
-            return true;
-        }
-
-        public static Uri saveImage(Bitmap bitmap, Context context, String folderName) throws FileNotFoundException {
-            if (android.os.Build.VERSION.SDK_INT >= 29) {
-                ContentValues values = getContentValues();
-                values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/" + folderName);
-                values.put(MediaStore.Images.Media.IS_PENDING, true);
-                // RELATIVE_PATH and IS_PENDING are introduced in API 29.
-
-                Uri uri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                if (uri != null) {
-                    saveImageToStream(bitmap, context.getContentResolver().openOutputStream(uri));
-                    values.put(MediaStore.Images.Media.IS_PENDING, false);
-                    context.getContentResolver().update(uri, values, null, null);
-                    return uri;
-                }
-            } else {
-                File directory = new File(Environment.getExternalStorageDirectory().toString() + separator + folderName);
-                // getExternalStorageDirectory is deprecated in API 29
-
-                if (!directory.exists()) {
-                    directory.mkdirs();
-                }
-                String fileName = Utils.getFullDateWithSecs(System.currentTimeMillis()) + ".png";
-                File file = new File(directory, fileName);
-                saveImageToStream(bitmap, new FileOutputStream(file));
-                if (file.getAbsolutePath() != null) {
-                    ContentValues values = getContentValues();
-                    values.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
-                    // .DATA is deprecated in API 29
-                    return context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                }
-            }
-            return null;
-        }
-
-        private static ContentValues getContentValues() {
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-            values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
-            values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-            return values;
-        }
-
-        private static void saveImageToStream(Bitmap bitmap, OutputStream outputStream) {
-            if (outputStream != null) {
-                try {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                    outputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if (uri == null) return null;
+            if ("file".equals(uri.getScheme())) return uri.getPath();
+            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor == null || !cursor.moveToFirst()) return null;
+                int index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                return index < 0 ? null : cursor.getString(index);
             }
         }
 
+        public static boolean deleteImg(Context context, String path) {
+            return new ru.alox1d.wordnote.huawei.data.storage.AttachmentStore(context).deleteIfUnused(path);
+        }
+
+        public static Uri saveImage(Bitmap image, Context context, String ignoredFolderName) throws FileNotFoundException {
+            return getImageUri(context, image);
+        }
     }
 
     public static final class EscapedWriter
